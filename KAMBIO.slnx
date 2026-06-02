@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="KAMBIO.API/KAMBIO.API.csproj" />
+  <Project Path="KAMBIO.CORE/KAMBIO.CORE.csproj" />
+</Solution>
