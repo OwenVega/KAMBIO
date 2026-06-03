@@ -12,7 +12,6 @@
     <Folder Include="CORE\Interfaces\" />
     <Folder Include="CORE\Settings\" />
     <Folder Include="CORE\Services\" />
-    <Folder Include="Infrastructure\Data\" />
     <Folder Include="Infrastructure\Shared\" />
     <Folder Include="Infrastructure\Repositories\" />
   </ItemGroup>
