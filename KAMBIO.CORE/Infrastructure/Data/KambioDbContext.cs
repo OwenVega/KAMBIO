@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using KAMBIO.CORE.Core.Entities;
 using Microsoft.EntityFrameworkCore;
-
 namespace KAMBIO.CORE.Infrastructure.Data;
+
 
 public partial class KambioDbContext : DbContext
 {

@@ -1,4 +1,22 @@
+using KAMBIO.CORE.Core.Entities;
+using KAMBIO.CORE.Core.Services;
+using KAMBIO.CORE.CORE.Interfaces;
+using KAMBIO.CORE.Infrastructure.Repositories;
+using  Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var _config = builder.Configuration;
+var cnx = _config.GetConnectionString("DevConnection");
+
+
+builder.Services.AddDbContext<KambioDbContext>(options =>
+  options.UseSqlServer(cnx));
+
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 // Add services to the container.
 
