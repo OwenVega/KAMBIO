@@ -1,0 +1,11 @@
+Usando la configuración de inicio de KAMBIO.API\Properties\launchSettings.json...
+Compilando...
+C:\Users\user\OneDrive - Universidad ESAN\Escritorio\avance\KAMBIO-US021\KAMBIO.CORE\CORE\Entities\KambioDbContext.cs(69,10): warning CS1030: #advertencia: 'To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.' [C:\Users\user\OneDrive - Universidad ESAN\Escritorio\avance\KAMBIO-US021\KAMBIO.CORE\KAMBIO.CORE.csproj]
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5126
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\user\OneDrive - Universidad ESAN\Escritorio\avance\KAMBIO-US021\KAMBIO.API
