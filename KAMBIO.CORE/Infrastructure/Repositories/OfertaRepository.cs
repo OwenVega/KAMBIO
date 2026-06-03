@@ -17,7 +17,15 @@ public class OfertaRepository : IOfertaRepository
     {
         _context.Oferta.Add(oferta);
         await _context.SaveChangesAsync();
-        return oferta;
+
+        return await _context.Oferta
+            .Include(o => o.IdUsuarioNavigation)
+            .Include(o => o.IdDivisaOrigenNavigation)
+            .Include(o => o.IdDivisaDestinoNavigation)
+            .Include(o => o.IdTipoOfertaNavigation)
+            .Include(o => o.IdEstadoOfertaNavigation)
+            .Include(o => o.OfertaMetodoPago).ThenInclude(omp => omp.IdBancoNavigation)
+            .FirstAsync(o => o.IdOferta == oferta.IdOferta);
     }
 
     public async Task<Oferta?> GetByIdAsync(int id)
