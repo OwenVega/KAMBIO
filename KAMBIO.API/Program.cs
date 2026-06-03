@@ -1,3 +1,5 @@
+// PROGRAM.CS - Punto de entrada
+// Configura la BD y registra los servicios del Chat.
 using Microsoft.EntityFrameworkCore;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.Core.Interfaces;
@@ -12,18 +14,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<KambioDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevConnection")));
 
+// Registro de dependencias para el Chat interno
 builder.Services.AddScoped<IMensajeChatRepository, MensajeChatRepository>();
 builder.Services.AddScoped<IMensajeChatService, MensajeChatService>();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
-{
     app.MapOpenApi();
-}
 
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
