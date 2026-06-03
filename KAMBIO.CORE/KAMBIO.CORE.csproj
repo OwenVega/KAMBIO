@@ -9,6 +9,7 @@
   <ItemGroup>
     <Folder Include="CORE\Entities\" />
     <Folder Include="CORE\Settings\" />
+    <Folder Include="CORE\Services\" />
     <Folder Include="Infrastructure\Shared\" />
   </ItemGroup>
 
