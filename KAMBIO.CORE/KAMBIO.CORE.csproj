@@ -7,17 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="CORE\DTOs\" />
     <Folder Include="CORE\Entities\" />
-    <Folder Include="CORE\Interfaces\" />
     <Folder Include="CORE\Settings\" />
-    <Folder Include="CORE\Services\" />
-    <Folder Include="Infrastructure\Data\" />
     <Folder Include="Infrastructure\Shared\" />
-    <Folder Include="Infrastructure\Repositories\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
       <PrivateAssets>all</PrivateAssets>
