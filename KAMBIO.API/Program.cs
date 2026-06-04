@@ -1,5 +1,6 @@
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.Core.Services;
+using KAMBIO.CORE.CORE.Services;
 using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.Infrastructure.Data;
 using KAMBIO.CORE.Infrastructure.Repositories;
@@ -18,6 +19,8 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IOfertaService, OfertaService>();
+builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
 
 // Add services to the container.
 
