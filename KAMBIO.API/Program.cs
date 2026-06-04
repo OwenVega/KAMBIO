@@ -1,11 +1,13 @@
+
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.Core.Services;
 using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.Infrastructure.Data;
 using KAMBIO.CORE.Infrastructure.Repositories;
-using  Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,9 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
+// US-005 - Ofertas de compra
+builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
+builder.Services.AddScoped<IOfertaService, OfertaService>();
 // Add services to the container.
 
 builder.Services.AddControllers();
