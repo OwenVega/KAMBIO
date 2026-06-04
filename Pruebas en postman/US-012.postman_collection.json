@@ -1,0 +1,32 @@
+{
+  "info": {
+    "_postman_id": "255b0a67-01fe-4736-ace1-f4b570650c4b",
+    "name": "US-012",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272539",
+    "_collection_link": "https://go.postman.co/collection/54272539-255b0a67-01fe-4736-ace1-f4b570650c4b?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "US-012 Exportar Excel",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5126/api/Reporte/exportar-excel",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "Reporte",
+            "exportar-excel"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
