@@ -19,6 +19,8 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
+builder.Services.AddScoped<ITransaccionRepository, TransaccionRepository>();
+builder.Services.AddScoped<ITransaccionService, TransaccionService>();
 // Add services to the container.
 
 builder.Services.AddControllers();
