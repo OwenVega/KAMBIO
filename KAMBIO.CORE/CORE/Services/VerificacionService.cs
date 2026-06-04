@@ -38,6 +38,7 @@ public class VerificacionService : IVerificacionService
         };
 
         var creada = await _verificacionRepository.CreateAsync(verificacion);
+        creada = await _verificacionRepository.GetByIdAsync(creada.IdVerificacion);
 
         return MapToDto(creada);
     }
@@ -56,14 +57,15 @@ public class VerificacionService : IVerificacionService
         verificacion.ObservacionAdmin = dto.ObservacionAdmin;         // Comentario
 
         // Si aprueba, marcar al usuario como verificado (EsVerificado = true)
-        if (dto.IdEstadoVerificacion == 2)
+        if (dto.IdEstadoVerificacion == 2 && verificacion.IdUsuarioNavigation != null)
         {
             verificacion.IdUsuarioNavigation.EsVerificado = true;
         }
 
         await _verificacionRepository.UpdateAsync(verificacion);
+        var actualizada = await _verificacionRepository.GetByIdAsync(verificacion.IdVerificacion);
 
-        return MapToDto(verificacion);
+        return MapToDto(actualizada);
     }
 
     // ADMIN: Obtener todas las solicitudes pendientes de revisión
@@ -87,8 +89,8 @@ public class VerificacionService : IVerificacionService
         {
             IdVerificacion = v.IdVerificacion,
             IdUsuario = v.IdUsuario,
-            NombreUsuario = $"{v.IdUsuarioNavigation.Nombres} {v.IdUsuarioNavigation.Apellidos}",
-            CorreoUsuario = v.IdUsuarioNavigation.Correo,
+            NombreUsuario = v.IdUsuarioNavigation != null ? $"{v.IdUsuarioNavigation.Nombres} {v.IdUsuarioNavigation.Apellidos}" : "Usuario",
+            CorreoUsuario = v.IdUsuarioNavigation?.Correo ?? "",
             Estado = v.IdEstadoVerificacionNavigation?.Nombre ?? "",  // "Pendiente", "Verificado", "Rechazado"
             RutaImagen = v.RutaImagen,
             FechaSolicitud = v.FechaSolicitud,
