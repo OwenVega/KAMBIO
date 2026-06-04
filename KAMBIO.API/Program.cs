@@ -1,4 +1,5 @@
 using KAMBIO.CORE.Core.Entities;
+using KAMBIO.CORE.Core.Interfaces;
 using KAMBIO.CORE.Core.Services;
 using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.Infrastructure.Data;
@@ -18,9 +19,11 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
-
+builder.Services.AddScoped<ITransaccionService, TransaccionService>();
+builder.Services.AddScoped<IComprobanteService, ComprobanteService>();
+builder.Services.AddScoped<ICalificacionService, CalificacionService>();
 // Add services to the container.
-
+builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
