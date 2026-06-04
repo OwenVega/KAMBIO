@@ -44,6 +44,7 @@ public class MensajeChatService : IMensajeChatService
         };
 
         var mensajeCreado = await _mensajeRepository.CreateAsync(mensaje);
+        await _context.Entry(mensajeCreado).Reference(m => m.IdUsuarioEnviaNavigation).LoadAsync();
 
         return new MensajeRespuestaDto
         {
