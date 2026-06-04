@@ -6,5 +6,6 @@ namespace KAMBIO.CORE.CORE.Interfaces
     {
         Task agregarUsuario(Usuario usuario);
         Task<bool> ExisteCorreo(string correo);
+        Task<Usuario> ObtenerPorCorreoAsync(string correo);
     }
 }

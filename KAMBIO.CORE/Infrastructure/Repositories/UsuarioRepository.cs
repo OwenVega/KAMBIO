@@ -4,7 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using KAMBIO.CORE.Core.Entities;
-using KAMBIO.CORE.CORE.Interfaces; 
+using KAMBIO.CORE.CORE.Interfaces;
+using KAMBIO.CORE.Infrastructure.Data;
 
 namespace KAMBIO.CORE.Infrastructure.Repositories
 {
@@ -33,6 +34,15 @@ namespace KAMBIO.CORE.Infrastructure.Repositories
 
             await _context.Usuario.AddAsync(usuario);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Usuario> ObtenerPorCorreoAsync(string correo)
+        {
+            if (string.IsNullOrWhiteSpace(correo)) return null;
+
+            return await _context.Usuario
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Correo == correo);
         }
     }
 }
