@@ -576,3 +576,318 @@ VALUES
 (1, 6, 'Disputa reportada',          'Se abrió una disputa en tu transacción #7. El admin revisará.',0,DATEADD(DAY, -2,     GETDATE()), 7, 'Transaccion');
 GO
 
+-- ============================================================
+-- SCRIPTS DE PRUEBA - Emily Calderon Anaya (24100471)
+-- US-013: Recuperación de contraseña
+-- US-014: Notificaciones en tiempo real
+-- US-015: Gestión de perfil de usuario
+-- US-016: Cancelación de oferta publicada
+-- Base de datos: KambioDB
+-- ============================================================
+
+USE KambioDB;
+GO
+
+-- ============================================================
+-- DATOS BASE NECESARIOS (ejecutar primero si la BD está vacía)
+-- Si ya existen estos usuarios, omitir esta sección
+-- ============================================================
+
+-- Usuario de prueba 1: Emily (usuario normal, activo)
+-- Nota: PasswordHash debe generarse con bcrypt en el backend.
+--       Aquí se coloca un hash de ejemplo para 'Password123'
+INSERT INTO Usuario (IdRol, IdEstadoCuenta, Nombres, Apellidos, Correo, PasswordHash, Telefono)
+VALUES (
+    1,                          -- Rol: Usuario
+    1,                          -- EstadoCuenta: Activo
+    'Emily',
+    'Calderon Anaya',
+    'emily.calderon@kambio.pe',
+    '$2a$10$EjemploHashBcryptAqui1234567890abcdef',  -- reemplazar con hash real
+    '987654321'
+);
+
+-- Usuario de prueba 2: Carlos (para interactuar como contraparte)
+INSERT INTO Usuario (IdRol, IdEstadoCuenta, Nombres, Apellidos, Correo, PasswordHash, Telefono)
+VALUES (
+    1,
+    1,
+    'Carlos',
+    'Mendoza Rivera',
+    'carlos.mendoza@kambio.pe',
+    '$2a$10$EjemploHashBcryptAqui1234567890abcdef',
+    '912345678'
+);
+
+-- Usuario de prueba 3: Admin (para pruebas de US-014 notificaciones admin)
+INSERT INTO Usuario (IdRol, IdEstadoCuenta, Nombres, Apellidos, Correo, PasswordHash)
+VALUES (
+    2,                          -- Rol: Administrador
+    1,
+    'Admin',
+    'Kambio',
+    'admin@kambio.pe',
+    '$2a$10$EjemploHashBcryptAqui1234567890abcdef'
+);
+
+GO
+
+-- ============================================================
+-- US-013: RECUPERACIÓN DE CONTRASEÑA
+-- TokenRecuperacion: token con vigencia 30 minutos
+-- ============================================================
+
+-- Caso 1: Token válido (aún vigente, no usado)
+INSERT INTO TokenRecuperacion (IdUsuario, Token, FechaExpiracion, Usado)
+VALUES (
+    1,                                              -- IdUsuario: Emily
+    'tok_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8',   -- token simulado
+    DATEADD(MINUTE, 30, GETDATE()),                 -- expira en 30 min
+    0                                               -- no usado
+);
+
+-- Caso 2: Token ya expirado (para probar validación de expiración)
+INSERT INTO TokenRecuperacion (IdUsuario, Token, FechaExpiracion, Usado)
+VALUES (
+    1,
+    'tok_EXPIRADO_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    DATEADD(MINUTE, -10, GETDATE()),                -- ya expiró hace 10 min
+    0
+);
+
+-- Caso 3: Token ya usado (para probar que no se reutilice)
+INSERT INTO TokenRecuperacion (IdUsuario, Token, FechaExpiracion, Usado)
+VALUES (
+    1,
+    'tok_USADO_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',
+    DATEADD(MINUTE, 30, GETDATE()),
+    1                                               -- ya fue usado
+);
+
+-- Verificación US-013: ver tokens del usuario
+-- SELECT * FROM TokenRecuperacion WHERE IdUsuario = 1 ORDER BY FechaCreacion DESC;
+
+GO
+
+-- ============================================================
+-- US-014: NOTIFICACIONES EN TIEMPO REAL
+-- Se insertan notificaciones de los 4 tipos relevantes:
+--   1. Oferta Aceptada
+--   2. Cambio de Estado Transaccion
+--   3. Match Encontrado
+--   4. Voucher Subido
+-- ============================================================
+
+-- Notificación 1: Oferta aceptada (sin leer)
+INSERT INTO Notificacion (IdUsuario, IdTipoNotificacion, Titulo, Mensaje, Leida, IdReferencia, TipoReferencia)
+VALUES (
+    1,                              -- Emily recibe la notif
+    1,                              -- TipoNotificacion: 'Oferta Aceptada'
+    'Tu oferta fue aceptada',
+    'Carlos Mendoza ha aceptado tu oferta de cambio de 1,000 USD. Procede con la transferencia.',
+    0,                              -- No leída
+    1,                              -- IdReferencia: IdOferta (ajustar al ID real)
+    'Oferta'
+);
+
+-- Notificación 2: Cambio de estado - Transacción En Proceso (sin leer)
+INSERT INTO Notificacion (IdUsuario, IdTipoNotificacion, Titulo, Mensaje, Leida, IdReferencia, TipoReferencia)
+VALUES (
+    1,
+    2,                              -- TipoNotificacion: 'Cambio de Estado Transaccion'
+    'Transacción En Proceso',
+    'Tu transacción #TRX-9844 ha pasado a estado En Proceso. Realiza la transferencia bancaria.',
+    0,
+    1,                              -- IdReferencia: IdTransaccion (ajustar al ID real)
+    'Transaccion'
+);
+
+-- Notificación 3: Transacción completada (sin leer)
+INSERT INTO Notificacion (IdUsuario, IdTipoNotificacion, Titulo, Mensaje, Leida, IdReferencia, TipoReferencia)
+VALUES (
+    1,
+    2,
+    'Transacción Completada',
+    'Los fondos de tu transacción #TRX-9821 han sido liberados exitosamente a tu cuenta bancaria.',
+    0,
+    2,
+    'Transaccion'
+);
+
+-- Notificación 4: Transacción cancelada (ya leída — para mostrar estado leído)
+INSERT INTO Notificacion (IdUsuario, IdTipoNotificacion, Titulo, Mensaje, Leida, FechaLectura, IdReferencia, TipoReferencia)
+VALUES (
+    1,
+    2,
+    'Transacción Cancelada',
+    'La oferta por 500 USD ha sido cancelada por falta de pago del contraparte.',
+    1,                              -- Leída
+    DATEADD(HOUR, -2, GETDATE()),   -- Se leyó hace 2 horas
+    3,
+    'Transaccion'
+);
+
+-- Notificación 5: Voucher subido por contraparte (sin leer)
+INSERT INTO Notificacion (IdUsuario, IdTipoNotificacion, Titulo, Mensaje, Leida, IdReferencia, TipoReferencia)
+VALUES (
+    1,
+    4,                              -- TipoNotificacion: 'Voucher Subido'
+    'Comprobante recibido',
+    'Carlos Mendoza ha subido su comprobante de pago. Por favor verifica la transferencia.',
+    0,
+    1,
+    'Transaccion'
+);
+
+-- Notificación 6: Match encontrado (sin leer)
+INSERT INTO Notificacion (IdUsuario, IdTipoNotificacion, Titulo, Mensaje, Leida, IdReferencia, TipoReferencia)
+VALUES (
+    1,
+    3,                              -- TipoNotificacion: 'Match Encontrado'
+    'Match disponible',
+    'Encontramos una coincidencia para tu oferta de 500 USD. Tasa propuesta: 3.742 PEN/USD.',
+    0,
+    1,
+    'Match'
+);
+
+-- Verificación US-014: contar notificaciones no leídas de Emily
+-- SELECT COUNT(*) AS NoLeidas FROM Notificacion WHERE IdUsuario = 1 AND Leida = 0;
+
+-- Marcar todas como leídas (acción "Marcar todas como leídas")
+-- UPDATE Notificacion SET Leida = 1, FechaLectura = GETDATE() WHERE IdUsuario = 1 AND Leida = 0;
+
+GO
+
+-- ============================================================
+-- US-015: GESTIÓN DE PERFIL DE USUARIO
+-- Actualización de nombre, teléfono y foto de perfil
+-- ============================================================
+
+-- Simular que Emily actualiza su perfil (nombre, teléfono, foto)
+UPDATE Usuario
+SET
+    Nombres     = 'Emily Paola',
+    Apellidos   = 'Calderon Anaya',
+    Telefono    = '987654321',
+    FotoPerfil  = '/uploads/perfiles/emily_calderon_foto.jpg'  -- ruta relativa al servidor
+WHERE IdUsuario = 1;
+
+-- Simular calificación promedio actualizada tras transacciones
+UPDATE Usuario
+SET
+    CalificacionPromedio = 4.80,
+    TotalOrdenes         = 12
+WHERE IdUsuario = 1;
+
+-- Verificación US-015: ver perfil completo de Emily
+-- SELECT IdUsuario, Nombres, Apellidos, Correo, Telefono, FotoPerfil,
+--        CalificacionPromedio, TotalOrdenes, EsVerificado
+-- FROM Usuario WHERE IdUsuario = 1;
+
+GO
+
+-- ============================================================
+-- US-016: CANCELACIÓN DE OFERTA PUBLICADA
+-- Requiere datos de Divisa, Oferta y TipoOferta
+-- ============================================================
+
+-- Primero insertamos ofertas activas de Emily para luego cancelar una
+-- (Las divisas USD=1, PEN=2 ya existen en los INSERTs del catálogo)
+
+-- Oferta activa 1 de Emily (Compra USD/PEN) — esta se cancelará
+INSERT INTO Oferta (IdUsuario, IdTipoOferta, IdEstadoOferta, IdDivisaOrigen, IdDivisaDestino,
+                    MontoDisponible, MontoMinimo, MontoMaximo, TasaCambio)
+VALUES (
+    1,      -- Emily
+    1,      -- TipoOferta: Compra
+    1,      -- EstadoOferta: Activa
+    1,      -- DivisaOrigen: USD
+    2,      -- DivisaDestino: PEN
+    1000.00,
+    100.00,
+    1000.00,
+    3.742
+);
+
+-- Oferta activa 2 de Emily (Venta USD/PEN) — esta quedará activa
+INSERT INTO Oferta (IdUsuario, IdTipoOferta, IdEstadoOferta, IdDivisaOrigen, IdDivisaDestino,
+                    MontoDisponible, MontoMinimo, MontoMaximo, TasaCambio)
+VALUES (
+    1,
+    2,      -- TipoOferta: Venta
+    1,      -- EstadoOferta: Activa
+    1,
+    2,
+    500.00,
+    50.00,
+    500.00,
+    3.750
+);
+
+-- Oferta de otro usuario (Carlos) — para validar que Emily no cancele ofertas ajenas
+INSERT INTO Oferta (IdUsuario, IdTipoOferta, IdEstadoOferta, IdDivisaOrigen, IdDivisaDestino,
+                    MontoDisponible, MontoMinimo, MontoMaximo, TasaCambio)
+VALUES (
+    2,      -- Carlos
+    1,
+    1,
+    1,
+    2,
+    2000.00,
+    200.00,
+    2000.00,
+    3.748
+);
+
+-- Simular cancelación de la Oferta 1 de Emily (acción del usuario)
+-- En el backend esto se haría mediante un UPDATE al presionar "Cancelar"
+UPDATE Oferta
+SET
+    IdEstadoOferta  = 2,                        -- EstadoOferta: Cancelada
+    FechaCancelacion = GETDATE()
+WHERE
+    IdOferta  = 1                               -- Ajustar al ID real generado
+    AND IdUsuario = 1                           -- Solo el dueño puede cancelarla
+    AND IdEstadoOferta = 1;                     -- Solo si está Activa
+
+-- Verificación US-016: ver ofertas de Emily con su estado
+-- SELECT o.IdOferta, to2.Nombre AS Tipo, eo.Nombre AS Estado,
+--        o.MontoDisponible, o.TasaCambio, o.FechaPublicacion, o.FechaCancelacion
+-- FROM Oferta o
+-- JOIN TipoOferta to2 ON o.IdTipoOferta = to2.IdTipoOferta
+-- JOIN EstadoOferta eo ON o.IdEstadoOferta = eo.IdEstadoOferta
+-- WHERE o.IdUsuario = 1;
+
+GO
+
+-- ============================================================
+-- CONSULTAS DE VERIFICACIÓN GENERAL (descomentar para probar)
+-- ============================================================
+
+-- Ver todos los tokens de recuperación
+-- SELECT t.IdToken, u.Correo, t.Token, t.FechaExpiracion, t.Usado
+-- FROM TokenRecuperacion t
+-- JOIN Usuario u ON t.IdUsuario = u.IdUsuario
+-- ORDER BY t.FechaCreacion DESC;
+
+-- Ver notificaciones no leídas con tipo
+-- SELECT n.IdNotificacion, tn.Nombre AS Tipo, n.Titulo, n.Mensaje,
+--        n.Leida, n.FechaCreacion
+-- FROM Notificacion n
+-- JOIN TipoNotificacion tn ON n.IdTipoNotificacion = tn.IdTipoNotificacion
+-- WHERE n.IdUsuario = 1
+-- ORDER BY n.FechaCreacion DESC;
+
+-- Ver perfil actualizado de Emily
+-- SELECT Nombres, Apellidos, Correo, Telefono, FotoPerfil,
+--        CalificacionPromedio, TotalOrdenes, EsVerificado
+-- FROM Usuario WHERE IdUsuario = 1;
+
+-- Ver estado de ofertas tras cancelación
+-- SELECT o.IdOferta, to2.Nombre AS Tipo, eo.Nombre AS Estado,
+--        o.MontoDisponible, o.FechaPublicacion, o.FechaCancelacion
+-- FROM Oferta o
+-- JOIN TipoOferta to2 ON o.IdTipoOferta = to2.IdTipoOferta
+-- JOIN EstadoOferta eo ON o.IdEstadoOferta = eo.IdEstadoOferta
+-- WHERE o.IdUsuario = 1;
