@@ -1,0 +1,52 @@
+{
+  "info": {
+    "_postman_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "name": "KAMBIO - US-022 (Chat Interno)",
+    "description": "Coleccion de pruebas para la US-022: Chat interno entre partes de una transaccion",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "POST - Enviar mensaje",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idTransaccion\": 1,\n  \"mensaje\": \"Hola, ya hice la transferencia\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5126/api/chat/enviar",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5126",
+              "path": ["api", "chat", "enviar"]
+            }
+          }
+        },
+        {
+          "name": "GET - Ver mensajes de una transaccion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5126/api/chat/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5126",
+              "path": ["api", "chat", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
