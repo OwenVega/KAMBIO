@@ -1,0 +1,100 @@
+{
+  "info": {
+    "_postman_id": "261cebfb-b661-4b0b-a23b-4b6a370a0b9d",
+    "name": "US  001 Crear cuenta",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272556"
+  },
+  "item": [
+    {
+      "name": "Registro exitoso",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombres\": \"usuariobloqueado\",\r\n  \"apellidos\": \"suspendido\",\r\n  \"correo\": \"pruebasuspendido@gmail.com\",\r\n  \"contrasena\": \"prueba123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/auth/registro",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "auth",
+            "registro"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Registro exitoso 2",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombres\": \"prueba\",\r\n  \"apellidos\": \"123\",\r\n  \"correo\": \"prueba@gmail.com\",\r\n  \"contrasena\": \"123456789\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/auth/registro",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "auth",
+            "registro"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Contraseña menor a 8 caracteres",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombres\": \"prueba3\",\r\n  \"apellidos\": \"prueba3\",\r\n  \"correo\": \"prueba3@gmail.com\",\r\n  \"contrasena\": \"1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/auth/registro",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "auth",
+            "registro"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

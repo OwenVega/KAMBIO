@@ -1,0 +1,280 @@
+{
+  "info": {
+    "_postman_id": "53f745a6-cd0d-4bf1-b507-c82622400a72",
+    "name": "Avance WEB 1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272590",
+    "_collection_link": "https://go.postman.co/collection/54272590-53f745a6-cd0d-4bf1-b507-c82622400a72?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "US-013 1 solicitar",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"correo\": \"emily.calderon@kambio.pe\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/recuperacion/solicitar",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "recuperacion",
+            "solicitar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "us-013 reestablecer contra",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"token\": \"7a608fde9c9849b6b06814119825692b\",\r\n  \"nuevaContrasena\": \"nueva1234\",\r\n  \"confirmarContrasena\": \"nueva1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/recuperacion/restablecer",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "recuperacion",
+            "restablecer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "1 contador",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/notificacion/1/contador",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "notificacion",
+            "1",
+            "contador"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "US014 Notificacion",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/notificacion/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "notificacion",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "notificacion leer",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/notificacion/6/leer",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "notificacion",
+            "6",
+            "leer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "leer todas",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/notificacion/1/leer-todas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "notificacion",
+            "1",
+            "leer-todas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET perfil 1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/perfil/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "perfil",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "actualizar perfil",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombres\": \"Emily Paola\",\r\n  \"apellidos\": \"Calderon Anaya\",\r\n  \"telefono\": \"987654321\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/perfil/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "perfil",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar foto",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "foto",
+              "type": "file",
+              "uuid": "4db99d93-cd6d-47ce-a4ac-5dcb1bc9bb4a",
+              "src": "/C:/Users/Ellysinha/OneDrive/Imágenes/images.jpeg"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/perfil/1/foto",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "perfil",
+            "1",
+            "foto"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cancelar oferta activa us016",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"idOferta\": 4,\r\n  \"idUsuario\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/oferta/cancelar",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "oferta",
+            "cancelar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ]
+}

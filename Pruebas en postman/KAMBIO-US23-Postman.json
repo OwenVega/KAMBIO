@@ -1,0 +1,89 @@
+{
+  "info": {
+    "_postman_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "name": "KAMBIO - US-023 (Verificacion de Identidad)",
+    "description": "Coleccion de pruebas para la US-023: Verificacion de identidad con foto DNI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Verificacion",
+      "item": [
+        {
+          "name": "POST - Solicitar verificacion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rutaImagen\": \"fotos/dni_123.jpg\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5126/api/verificacion/solicitar",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5126",
+              "path": ["api", "verificacion", "solicitar"]
+            }
+          }
+        },
+        {
+          "name": "PUT - Revisar solicitud (aprobar)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idVerificacion\": 1,\n  \"idEstadoVerificacion\": 2,\n  \"observacionAdmin\": \"DNI valido\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5126/api/verificacion/revisar",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5126",
+              "path": ["api", "verificacion", "revisar"]
+            }
+          }
+        },
+        {
+          "name": "GET - Ver solicitudes pendientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5126/api/verificacion/pendientes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5126",
+              "path": ["api", "verificacion", "pendientes"]
+            }
+          }
+        },
+        {
+          "name": "GET - Ver detalle de solicitud",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5126/api/verificacion/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5126",
+              "path": ["api", "verificacion", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

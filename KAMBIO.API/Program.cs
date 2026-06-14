@@ -1,4 +1,5 @@
 using KAMBIO.CORE.Core.Services;
+using KAMBIO.CORE.CORE.Services;
 using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.CORE.Services;
 using KAMBIO.CORE.Infrastructure.Data;
@@ -16,6 +17,8 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IPerfilService, PerfilService>();
+builder.Services.AddScoped<IOfertaService, OfertaService>();
+builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
