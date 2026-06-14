@@ -1,42 +1,56 @@
-using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.Core.Services;
 using KAMBIO.CORE.CORE.Interfaces;
+using KAMBIO.CORE.CORE.Services;
 using KAMBIO.CORE.Infrastructure.Data;
 using KAMBIO.CORE.Infrastructure.Repositories;
-using  Microsoft.AspNetCore.Builder;
+using KAMBIO.API.Hubs;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var _config = builder.Configuration;
 var cnx = _config.GetConnectionString("DevConnection");
 
-
 builder.Services.AddDbContext<KambioDbContext>(options =>
-  options.UseSqlServer(cnx));
+    options.UseSqlServer(cnx));
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+
 
 builder.Services.AddScoped<ITransaccionRepository, TransaccionRepository>();
 builder.Services.AddScoped<ITransaccionService, TransaccionService>();
 // Add services to the container.
 
+
+builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
+builder.Services.AddScoped<IOfertaService, OfertaService>();
+builder.Services.AddScoped<IPerfilService, PerfilService>();
+builder.Services.AddScoped<IRecuperacionService, RecuperacionService>();
+builder.Services.AddScoped<ITokenRecuperacionRepository, TokenRecuperacionRepository>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
+builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+
+builder.Services.AddSignalR();
+
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
+app.UseStaticFiles();
 app.UseAuthorization();
-
 app.MapControllers();
+app.MapHub<NotificacionHub>("/hubs/notificaciones");
 
 app.Run();

@@ -1,0 +1,162 @@
+{
+  "info": {
+    "_postman_id": "18bb49c7-e674-4929-9b3e-d11ecee9b49e",
+    "name": "PRUEBA_DE_SOFTWARE",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272553"
+  },
+  "item": [
+    {
+      "name": "post US-005",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://localhost:7113/api/OrdenServicio/",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7113",
+          "path": [
+            "api",
+            "OrdenServicio",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get US-005",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5126/api/oferta/activas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "oferta",
+            "activas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get-US-007",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5126/api/ConfirmacionPago/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "ConfirmacionPago",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "post US-006",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"idUsuario\": 1,\r\n  \"idDivisaOrigen\": 1,\r\n  \"idDivisaDestino\": 2,\r\n  \"montoDisponible\": 1000,\r\n  \"tasaCambio\": 3.75,\r\n  \"idBancos\": [1, 2]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/OfertaVenta",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "OfertaVenta"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get US-008",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5126/api/Disputa",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "Disputa"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "put US-008",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"idAdminResolucion\": 6,\r\n  \"resolucionDetalle\": \"Se verificó la evidencia y se resuelve a favor del comprador.\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/Disputa/resolver/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "Disputa",
+            "resolver",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
