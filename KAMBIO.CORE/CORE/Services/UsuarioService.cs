@@ -18,32 +18,53 @@ namespace KAMBIO.CORE.Core.Services
 
         public async Task RegistrarUsuarioAsync(RegistroUsuarioDto dto)
         {
-            // Paso 1: Regla de negocio - Validar unicidad del correo
+
             bool correoExiste = await _usuarioRepository.ExisteCorreo(dto.Correo);
             if (correoExiste)
             {
-                // Lanzamos una excepción controlada para que el controlador la atrape
                 throw new InvalidOperationException("Este correo ya está registrado.");
             }
 
-            // Paso 2: Seguridad - Encriptar la contraseña plana
             string passwordHasheada = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena);
 
-            // Paso 3: Mapeo - Convertir el DTO en la Entidad real
             var nuevoUsuario = new Usuario
             {
                 Nombres = dto.Nombres,
                 Apellidos = dto.Apellidos,
                 Correo = dto.Correo,
                 PasswordHash = passwordHasheada,
-
-                // Reglas de negocio obligatorias para usuarios nuevos
-                IdRol = 1,          // 1 = 'Usuario' 
-                IdEstadoCuenta = 1  // 1 = 'Activo' 
+                IdRol = 1,          
+                IdEstadoCuenta = 1  
             };
 
-            // Paso 4: Persistencia - Enviar la entidad al repositorio
             await _usuarioRepository.agregarUsuario(nuevoUsuario);
+        }
+
+        public async Task<Usuario> LoginAsync(LoginUsuarioDto dto)
+        {
+
+            var usuario = await _usuarioRepository.ObtenerPorCorreoAsync(dto.Correo);
+
+            if (usuario == null)
+            {
+                throw new UnauthorizedAccessException("Correo o contraseña incorrecta.");
+            }
+
+            bool passwordCorrecta = BCrypt.Net.BCrypt.Verify(dto.Contrasena, usuario.PasswordHash);
+
+            if (!passwordCorrecta)
+            {
+
+                throw new UnauthorizedAccessException("Correo o contraseña incorrecta.");
+            }
+
+
+            if (usuario.IdEstadoCuenta == 2 || usuario.IdEstadoCuenta == 3)
+            {
+                throw new InvalidOperationException("Tu cuenta ha sido suspendida. Comunícate con soporte.");
+            }
+
+            return usuario;
         }
     }
 }
