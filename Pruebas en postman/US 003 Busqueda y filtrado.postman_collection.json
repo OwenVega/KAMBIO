@@ -1,0 +1,45 @@
+{
+  "info": {
+    "_postman_id": "c2fbc362-2b82-4de6-b349-80a6071431fe",
+    "name": "US 003 Busqueda y filtrado",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272556"
+  },
+  "item": [
+    {
+      "name": "Filtros",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5126/api/mercado/ofertas?IdTipoOferta=2&IdDivisaOrigen=1&IdDivisaDestino=2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "mercado",
+            "ofertas"
+          ],
+          "query": [
+            {
+              "key": "IdTipoOferta",
+              "value": "2"
+            },
+            {
+              "key": "IdDivisaOrigen",
+              "value": "1"
+            },
+            {
+              "key": "IdDivisaDestino",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
