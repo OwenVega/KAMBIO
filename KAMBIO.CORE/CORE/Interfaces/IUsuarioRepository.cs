@@ -1,5 +1,6 @@
 ﻿using KAMBIO.CORE.Core.Entities;
 
+
 namespace KAMBIO.CORE.CORE.Interfaces
 {
     public interface IUsuarioRepository

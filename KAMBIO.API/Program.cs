@@ -4,6 +4,8 @@ using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.CORE.Services;
 using KAMBIO.CORE.Infrastructure.Data;
 using KAMBIO.CORE.Infrastructure.Repositories;
+using KAMBIO.API.Hubs;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,10 +18,16 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IRecuperacionService, RecuperacionService>();
+builder.Services.AddScoped<ITokenRecuperacionRepository, TokenRecuperacionRepository>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
+builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+builder.Services.AddSignalR();
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
 builder.Services.AddScoped<IPerfilService, PerfilService>();
 builder.Services.AddScoped<IOfertaService, OfertaService>();
 builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
-
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
@@ -37,5 +45,6 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<NotificacionHub>("/hubs/notificaciones");
 
 app.Run();
