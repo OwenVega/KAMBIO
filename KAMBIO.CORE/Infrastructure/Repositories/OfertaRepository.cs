@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using KAMBIO.CORE.Core.Entities;
@@ -40,6 +40,25 @@ namespace KAMBIO.CORE.Infrastructure.Repositories
             }
 
             return await query.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<Oferta?> ObtenerPorIdAsync(int idOferta)
+        {
+            return await _context.Oferta.FindAsync(idOferta);
+        }
+
+        public async Task ActualizarAsync(Oferta oferta)
+        {
+            _context.Oferta.Update(oferta);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> TieneTransaccionEnCursoAsync(int idOferta)
+        {
+            return await _context.Transaccion
+                .AnyAsync(t => t.IdOferta == idOferta &&
+                               t.IdEstadoTransaccion != 4 &&
+                               t.IdEstadoTransaccion != 5);
         }
     }
 }
