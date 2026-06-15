@@ -19,6 +19,10 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
+builder.Services.AddScoped<IFiltroOfertaRepository, FiltroOfertaRepository>();
+builder.Services.AddScoped<IFiltroOfertaService, FiltroOfertaService>();
+
+
 builder.Services.AddScoped<IAdministracionUsuarioRepository, AdministracionUsuarioRepository>();
 builder.Services.AddScoped<IAdministracionUsuarioService, AdministracionUsuarioService>();
 
@@ -28,6 +32,7 @@ builder.Services.AddScoped<IOfertaService, OfertaService>();
 builder.Services.AddScoped<ITransaccionService, TransaccionService>();
 builder.Services.AddScoped<IComprobanteService, ComprobanteService>();
 builder.Services.AddScoped<ICalificacionService, CalificacionService>();
+
 
 // Add services to the container.
 builder.Services.AddScoped<IReporteService, ReporteService>();
