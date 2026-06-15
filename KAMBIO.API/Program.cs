@@ -18,14 +18,13 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
     options.UseSqlServer(cnx));
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IMetodoPagoRepository, MetodoPagoRepository>();
+builder.Services.AddScoped<IMetodoPagoService, MetodoPagoService>();
 builder.Services.AddScoped<IOfertaService, OfertaService>();
-
-
-
-
 builder.Services.AddScoped<ITransaccionService, TransaccionService>();
 builder.Services.AddScoped<IComprobanteService, ComprobanteService>();
 builder.Services.AddScoped<ICalificacionService, CalificacionService>();
+
 // Add services to the container.
 builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<
