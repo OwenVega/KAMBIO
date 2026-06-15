@@ -10,5 +10,6 @@ namespace KAMBIO.CORE.CORE.Interfaces
         Task<Usuario> ObtenerPorCorreoAsync(string correo);
         Task<Usuario> ObtenerPorIdAsync(int id);
         Task ActualizarAsync(Usuario usuario);
+
     }
 }

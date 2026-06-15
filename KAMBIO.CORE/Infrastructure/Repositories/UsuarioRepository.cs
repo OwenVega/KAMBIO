@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using KAMBIO.CORE.Core.Entities;
@@ -30,30 +30,11 @@ namespace KAMBIO.CORE.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-
         public async Task<Usuario> ObtenerPorCorreoAsync(string correo)
         {
+            if (string.IsNullOrWhiteSpace(correo)) return null;
             return await _context.Usuario
-                .FirstOrDefaultAsync(u => u.Correo == correo);
-        }
-
-        public async Task<Usuario> ObtenerPorIdAsync(int id)
-        {
-            return await _context.Usuario.FindAsync(id);
-        }
-
-        public async Task ActualizarAsync(Usuario usuario)
-        {
-            _context.Usuario.Update(usuario);
-            await _context.SaveChangesAsync();
-        }
-    }
-}
-
-
-        public async Task<Usuario> ObtenerPorCorreoAsync(string correo)
-        {
-            return await _context.Usuario
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Correo == correo);
         }
 
