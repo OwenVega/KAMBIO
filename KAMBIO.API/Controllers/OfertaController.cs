@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using KAMBIO.CORE.Core.DTOs;
 using KAMBIO.CORE.CORE.Interfaces;
 
@@ -15,17 +15,13 @@ namespace KAMBIO.API.Controllers
             _ofertaService = ofertaService;
         }
 
-        // POST api/oferta/compra
-        // Header requerido: X-Usuario-Id (simula sesión autenticada)
         [HttpPost("compra")]
         public async Task<IActionResult> CrearOfertaCompra(
             [FromHeader(Name = "X-Usuario-Id")] int? idUsuario,
             [FromBody] CrearOfertaCompraRequestDTO dto)
         {
-            // Validar sesión activa — si no hay header, acceso denegado
             if (idUsuario == null || idUsuario <= 0)
                 return Unauthorized(new { mensaje = "Acceso denegado. Debe iniciar sesión para publicar una oferta." });
-
             try
             {
                 var resultado = await _ofertaService.CrearOfertaCompra(idUsuario.Value, dto);
@@ -41,7 +37,6 @@ namespace KAMBIO.API.Controllers
             }
         }
 
-        // GET api/oferta/activas
         [HttpGet("activas")]
         public async Task<IActionResult> ObtenerOfertasActivas()
         {
@@ -53,6 +48,20 @@ namespace KAMBIO.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Ocurrió un error interno en el servidor.", detalle = ex.Message });
+            }
+        }
+
+        [HttpPut("cancelar")]
+        public async Task<IActionResult> CancelarOferta([FromBody] CancelacionOfertaDto dto)
+        {
+            try
+            {
+                await _ofertaService.CancelarOfertaAsync(dto.IdOferta, dto.IdUsuario);
+                return Ok(new { mensaje = "Oferta cancelada correctamente." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
             }
         }
     }
