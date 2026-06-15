@@ -1,0 +1,41 @@
+{
+  "info": {
+    "_postman_id": "4c4aadc4-1003-4808-bd27-a9e8f3b95759",
+    "name": "US 004 Historial",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272556"
+  },
+  "item": [
+    {
+      "name": "Historial",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5126/api/transaccion/historial?Pagina=1&CantidadPorPagina=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "transaccion",
+            "historial"
+          ],
+          "query": [
+            {
+              "key": "Pagina",
+              "value": "1"
+            },
+            {
+              "key": "CantidadPorPagina",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
