@@ -1,4 +1,4 @@
-// PROGRAM.CS - Punto de entrada
+// PROGRAM.CS - Punto de entrada de la aplicación
 using Microsoft.EntityFrameworkCore;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.Core.Interfaces;
@@ -45,6 +45,8 @@ builder.Services.AddScoped<IOfertaVentaRepository, OfertaVentaRepository>();
 builder.Services.AddScoped<IOfertaVentaService, OfertaVentaService>();
 builder.Services.AddScoped<IMensajeChatRepository, MensajeChatRepository>();
 builder.Services.AddScoped<IMensajeChatService, MensajeChatService>();
+builder.Services.AddScoped<IVerificacionRepository, VerificacionRepository>();
+builder.Services.AddScoped<IVerificacionService, VerificacionService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
