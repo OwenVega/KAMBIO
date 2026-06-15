@@ -1,3 +1,5 @@
+// PROGRAM.CS - Punto de entrada
+using Microsoft.EntityFrameworkCore;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.Core.Interfaces;
 using KAMBIO.CORE.Core.Services;
@@ -6,14 +8,15 @@ using KAMBIO.CORE.CORE.Services;
 using KAMBIO.CORE.Infrastructure.Data;
 using KAMBIO.CORE.Infrastructure.Repositories;
 using KAMBIO.API.Hubs;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var _config = builder.Configuration;
 var cnx = _config.GetConnectionString("DevConnection");
 
 builder.Services.AddDbContext<KambioDbContext>(options =>
     options.UseSqlServer(cnx));
+
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IFiltroOfertaRepository, FiltroOfertaRepository>();
@@ -40,6 +43,9 @@ builder.Services.AddScoped<INotificacionService, NotificacionService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<IOfertaVentaRepository, OfertaVentaRepository>();
 builder.Services.AddScoped<IOfertaVentaService, OfertaVentaService>();
+builder.Services.AddScoped<IMensajeChatRepository, MensajeChatRepository>();
+builder.Services.AddScoped<IMensajeChatService, MensajeChatService>();
+
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -59,4 +65,5 @@ app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<NotificacionHub>("/hubs/notificaciones");
+
 app.Run();

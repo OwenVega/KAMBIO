@@ -42,4 +42,8 @@
     <ProjectReference Include="..\KAMBIO.CORE\KAMBIO.CORE.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\KAMBIO.CORE\KAMBIO.CORE.csproj" />
+  </ItemGroup>
+
 </Project>
