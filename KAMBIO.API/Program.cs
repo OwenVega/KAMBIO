@@ -14,6 +14,9 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
     options.UseSqlServer(cnx));
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+
+builder.Services.AddScoped<IConfirmacionPagoRepository, ConfirmacionPagoRepository>();
+builder.Services.AddScoped<IConfirmacionPagoService, ConfirmacionPagoService>();
 builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
 builder.Services.AddScoped<IOfertaService, OfertaService>();
 builder.Services.AddScoped<ITransaccionRepository, TransaccionRepository>();
