@@ -47,6 +47,8 @@ builder.Services.AddScoped<IMensajeChatRepository, MensajeChatRepository>();
 builder.Services.AddScoped<IMensajeChatService, MensajeChatService>();
 builder.Services.AddScoped<IVerificacionRepository, VerificacionRepository>();
 builder.Services.AddScoped<IVerificacionService, VerificacionService>();
+builder.Services.AddScoped<IAlertaRepository, AlertaRepository>();
+builder.Services.AddScoped<IAlertaService, AlertaService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
