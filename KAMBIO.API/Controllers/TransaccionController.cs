@@ -1,4 +1,5 @@
-﻿using KAMBIO.CORE.Core.DTOs;
+using System.Security.Claims;
+using KAMBIO.CORE.Core.DTOs;
 using KAMBIO.CORE.CORE.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,6 +50,15 @@ namespace KAMBIO.API.Controllers
             {
                 return StatusCode(500, new { error = "Error interno.", detalle = ex.Message });
             }
+        }
+
+        [HttpGet("historial")]
+        public async Task<IActionResult> ObtenerHistorial([FromQuery] FiltroHistorialDTO filtro)
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int idUsuario = string.IsNullOrEmpty(claimId) ? 1 : int.Parse(claimId);
+            var historial = await _transaccionService.ObtenerHistorialUsuarioAsync(idUsuario, filtro);
+            return Ok(historial);
         }
     }
 }
