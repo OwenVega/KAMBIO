@@ -1,0 +1,92 @@
+{
+  "info": {
+    "_postman_id": "068d7ddf-972e-438f-a9e3-2fcd44a78654",
+    "name": "US-020",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272595",
+    "_collection_link": "https://go.postman.co/collection/54272595-068d7ddf-972e-438f-a9e3-2fcd44a78654?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Buscar con un filtro súper específico",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5126/api/filtrooferta/buscar",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "filtrooferta",
+            "buscar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Simular un listado vacío (\"No se encontraron ofertas\")",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"idDivisaOrigen\": 1,\r\n  \"montoRequerido\": 9999999,\r\n  \"reputacionMinima\": 4.5\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/filtrooferta/buscar",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "filtrooferta",
+            "buscar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Botón \"Limpiar filtros\"",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/filtrooferta/buscar",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "filtrooferta",
+            "buscar"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
