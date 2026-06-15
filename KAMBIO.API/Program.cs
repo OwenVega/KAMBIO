@@ -18,6 +18,10 @@ builder.Services.AddDbContext<KambioDbContext>(options =>
     options.UseSqlServer(cnx));
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IOfertaService, OfertaService>();
+
+
+
 
 builder.Services.AddScoped<ITransaccionService, TransaccionService>();
 builder.Services.AddScoped<IComprobanteService, ComprobanteService>();
@@ -35,7 +39,6 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<IConfirmacionPagoRepository, ConfirmacionPagoRepository>();
 builder.Services.AddScoped<IConfirmacionPagoService, ConfirmacionPagoService>();
 builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
-builder.Services.AddScoped<IOfertaService, OfertaService>();
 builder.Services.AddScoped<ITransaccionRepository, TransaccionRepository>();
 builder.Services.AddScoped<IPerfilService, PerfilService>();
 builder.Services.AddScoped<IRecuperacionService, RecuperacionService>();
@@ -45,6 +48,7 @@ builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IOfertaVentaRepository, OfertaVentaRepository>();
 builder.Services.AddScoped<IOfertaVentaService, OfertaVentaService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
