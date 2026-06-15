@@ -1,0 +1,150 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using KAMBIO.CORE.Core.DTOs;
+using KAMBIO.CORE.Core.Entities;
+using KAMBIO.CORE.CORE.Interfaces;
+using KAMBIO.CORE.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace KAMBIO.CORE.Core.Services
+{
+    public class TransaccionService : ITransaccionService
+    {
+        private readonly KambioDbContext _context;
+        private readonly ITransaccionRepository _transaccionRepository;
+
+        public TransaccionService(KambioDbContext context, ITransaccionRepository transaccionRepository)
+        {
+            _context = context;
+            _transaccionRepository = transaccionRepository;
+        }
+
+        public async Task<TransaccionDetalleDto> ObtenerPorIdAsync(int idTransaccion)
+        {
+            var t = await _context.Transaccion
+                .Include(x => x.IdEstadoTransaccionNavigation)
+                .FirstOrDefaultAsync(x => x.IdTransaccion == idTransaccion)
+                ?? throw new InvalidOperationException("Transacción no encontrada.");
+
+            return new TransaccionDetalleDto
+            {
+                IdTransaccion = t.IdTransaccion,
+                IdOferta = t.IdOferta,
+                Monto = t.Monto,
+                MontoEquivalente = t.MontoEquivalente,
+                TasaCambioAplicada = t.TasaCambioAplicada,
+                TipoOperacion = t.TipoOperacion,
+                EstadoNombre = t.IdEstadoTransaccionNavigation.Nombre,
+                FechaInicio = t.FechaInicio,
+                FechaConfirmacionPago = t.FechaConfirmacionPago,
+                FechaCompletado = t.FechaCompletado,
+                ConfirmadoPorComprador = t.ConfirmadoPorComprador,
+                ConfirmadoPorVendedor = t.ConfirmadoPorVendedor
+            };
+        }
+
+        public async Task CambiarEstadoAsync(CambiarEstadoDto dto)
+        {
+            var t = await _context.Transaccion.FindAsync(dto.IdTransaccion)
+                ?? throw new InvalidOperationException("Transacción no encontrada.");
+
+            var transicionesValidas = new Dictionary<int, List<int>>
+            {
+                { 1, new List<int> { 2, 5 } },
+                { 2, new List<int> { 3, 5 } },
+                { 3, new List<int> { 4, 6 } },
+            };
+
+            if (transicionesValidas.ContainsKey(t.IdEstadoTransaccion) &&
+                !transicionesValidas[t.IdEstadoTransaccion].Contains(dto.IdEstadoTransaccion))
+                throw new InvalidOperationException("Transición de estado no permitida.");
+
+            if (dto.IdEstadoTransaccion == 4)
+                t.FechaCompletado = DateTime.Now;
+            else if (dto.IdEstadoTransaccion == 5)
+                t.FechaCancelacion = DateTime.Now;
+
+            t.IdEstadoTransaccion = dto.IdEstadoTransaccion;
+
+            var historial = new HistorialEstadoTransaccion
+            {
+                IdTransaccion = dto.IdTransaccion,
+                IdEstadoTransaccion = dto.IdEstadoTransaccion,
+                IdUsuarioCambio = dto.IdUsuarioCambio,
+                Observacion = dto.Observacion,
+                FechaCambio = DateTime.Now
+            };
+            _context.HistorialEstadoTransaccion.Add(historial);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<HistorialPaginadoDTO> ObtenerHistorialUsuarioAsync(int idUsuario, FiltroHistorialDTO filtro)
+        {
+            var resultadoRepo = await _transaccionRepository.ObtenerHistorialPaginadoAsync(
+                idUsuario,
+                filtro.BusquedaDivisas,
+                filtro.FechaInicio,
+                filtro.FechaFin,
+                filtro.TipoOperacion,
+                filtro.IdEstado,
+                filtro.Pagina,
+                filtro.CantidadPorPagina
+            );
+
+            var fechaActual = DateTime.Now;
+            var transaccionesMes = await _transaccionRepository.ObtenerTransaccionesCompletadasDelMesAsync(
+                idUsuario,
+                fechaActual.Month,
+                fechaActual.Year
+            );
+
+            decimal volumenUsd = 0;
+            double tiempoTotalMinutos = 0;
+            int exitosas = transaccionesMes.Count;
+
+            foreach (var t in transaccionesMes)
+            {
+                if (t.IdDivisaOrigen == 1)
+                    volumenUsd += t.Monto;
+                else if (t.IdDivisaDestino == 1)
+                    volumenUsd += t.MontoEquivalente;
+
+                if (t.FechaCompletado.HasValue)
+                    tiempoTotalMinutos += (t.FechaCompletado.Value - t.FechaInicio).TotalMinutes;
+            }
+
+            double tiempoPromedio = exitosas > 0 ? tiempoTotalMinutos / exitosas : 0;
+
+            var transaccionesDto = resultadoRepo.Transacciones.Select(t => new TransaccionHistorialDTO
+            {
+                IdTransaccion = t.IdTransaccion,
+                FechaOperacion = t.FechaInicio.ToString("dd MMM, yyyy HH:mm:ss", new CultureInfo("es-ES")),
+                ParDivisas = $"{t.IdDivisaOrigenNavigation.Codigo}/{t.IdDivisaDestinoNavigation.Codigo}",
+                Tipo = t.TipoOperacion,
+                MontoOrigen = Math.Round(t.Monto, 2),
+                MontoDestino = Math.Round(t.MontoEquivalente, 2),
+                Estado = t.IdEstadoTransaccionNavigation.Nombre
+            }).ToList();
+
+            int totalPaginas = (int)Math.Ceiling((double)resultadoRepo.TotalRegistros / filtro.CantidadPorPagina);
+
+            return new HistorialPaginadoDTO
+            {
+                Resumen = new ResumenHistorialDTO
+                {
+                    VolumenMensualUSD = Math.Round(volumenUsd, 2),
+                    OperacionesExitosas = exitosas,
+                    TiempoPromedioMinutos = Math.Round(tiempoPromedio, 2)
+                },
+                Transacciones = transaccionesDto,
+                TotalRegistros = resultadoRepo.TotalRegistros,
+                PaginaActual = filtro.Pagina,
+                TotalPaginas = totalPaginas
+            };
+        }
+    }
+}

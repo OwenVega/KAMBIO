@@ -1,0 +1,38 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+    "name": "KAMBIO - US-021 (Oferta)",
+    "description": "Coleccion de pruebas para la US-021: Creacion de oferta de cambio de divisas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Oferta",
+      "item": [
+        {
+          "name": "POST - Crear oferta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idUsuario\": 1,\n  \"idDivisaOrigen\": 1,\n  \"idDivisaDestino\": 2,\n  \"montoMinimo\": 100,\n  \"montoMaximo\": 5000,\n  \"tasaCambio\": 3.75,\n  \"idTipoOferta\": 1,\n  \"IdsMetodosPago\": [1, 2]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5126/api/oferta",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5126",
+              "path": ["api", "oferta"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

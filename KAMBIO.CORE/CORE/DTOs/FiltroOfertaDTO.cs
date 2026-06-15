@@ -1,30 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace KAMBIO.CORE.Core.DTOs
 {
-    /// <summary>
-    /// DTO para recibir los parámetros de búsqueda. Todos son opcionales (nullable)
-    /// para permitir combinaciones dinámicas o limpiar los filtros.
-    /// </summary>
     public class FiltroOfertaRequestDto
     {
-        public int? IdTipoOferta { get; set; } // 1: Compra, 2: Venta
+        public int? IdTipoOferta { get; set; }
         public int? IdDivisaOrigen { get; set; }
         public int? IdDivisaDestino { get; set; }
         public int? IdBanco { get; set; }
-
-        // Criterio: Rango de monto. Representa el monto exacto que el usuario quiere cambiar
         public decimal? MontoRequerido { get; set; }
-
-        // Criterio: Rango de reputación
         public decimal? ReputacionMinima { get; set; }
         public decimal? ReputacionMaxima { get; set; }
     }
 
-    /// <summary>
-    /// DTO para mostrar los datos procesados de cada oferta compatible en el listado.
-    /// </summary>
     public class OfertaFiltradaDto
     {
         public int IdOferta { get; set; }
@@ -41,12 +31,18 @@ namespace KAMBIO.CORE.Core.DTOs
         public DateTime FechaPublicacion { get; set; }
     }
 
-    /// <summary>
-    /// DTO contenedor que incluye el listado y el contador exigido por la US-020.
-    /// </summary>
     public class FiltroOfertaResponseDto
     {
         public int TotalResultados { get; set; }
         public List<OfertaFiltradaDto> Ofertas { get; set; } = new List<OfertaFiltradaDto>();
+    }
+
+    public class FiltroOfertaDTO
+    {
+        public int IdTipoOferta { get; set; }
+        public int IdDivisaOrigen { get; set; }
+        public int IdDivisaDestino { get; set; }
+        public decimal? Monto { get; set; }
+        public int? IdBanco { get; set; }
     }
 }
