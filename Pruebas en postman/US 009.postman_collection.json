@@ -1,0 +1,41 @@
+{
+  "info": {
+    "_postman_id": "272ea991-4a3a-4d11-b7f5-592249170ca8",
+    "name": "US 009",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272539",
+    "_collection_link": "https://go.postman.co/collection/54272539-272ea991-4a3a-4d11-b7f5-592249170ca8?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "US-009 Cambiar Estado",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"idTransaccion\": 1,\r\n  \"idEstadoTransaccion\": 2,\r\n  \"idUsuarioCambio\": 1,\r\n  \"observacion\": \"En proceso\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/Transaccion/cambiar-estado",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "Transaccion",
+            "cambiar-estado"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
