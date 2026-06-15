@@ -17,6 +17,46 @@ namespace KAMBIO.CORE.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<Oferta> CrearOfertaCompra(Oferta oferta, List<int> idBancos)
+        {
+            await _context.Oferta.AddAsync(oferta);
+            await _context.SaveChangesAsync();
+
+            foreach (var idBanco in idBancos)
+            {
+                var metodo = new OfertaMetodoPago
+                {
+                    IdOferta = oferta.IdOferta,
+                    IdBanco = idBanco
+                };
+                await _context.OfertaMetodoPago.AddAsync(metodo);
+            }
+            await _context.SaveChangesAsync();
+
+            return await _context.Oferta
+                .Include(o => o.IdDivisaOrigenNavigation)
+                .Include(o => o.IdDivisaDestinoNavigation)
+                .Include(o => o.IdEstadoOfertaNavigation)
+                .Include(o => o.IdTipoOfertaNavigation)
+                .Include(o => o.OfertaMetodoPago)
+                    .ThenInclude(m => m.IdBancoNavigation)
+                .FirstAsync(o => o.IdOferta == oferta.IdOferta);
+        }
+
+        public async Task<List<Oferta>> ObtenerOfertasActivas()
+        {
+            return await _context.Oferta
+                .Where(o => o.IdEstadoOferta == 1)
+                .Include(o => o.IdDivisaOrigenNavigation)
+                .Include(o => o.IdDivisaDestinoNavigation)
+                .Include(o => o.IdEstadoOfertaNavigation)
+                .Include(o => o.IdTipoOfertaNavigation)
+                .Include(o => o.OfertaMetodoPago)
+                    .ThenInclude(m => m.IdBancoNavigation)
+                .OrderByDescending(o => o.FechaPublicacion)
+                .ToListAsync();
+        }
+
         public async Task<List<Oferta>> ObtenerOfertasFiltradasAsync(int idTipoOferta, int idDivisaOrigen, int idDivisaDestino, decimal? monto, int? idBanco)
         {
             var query = _context.Oferta
@@ -30,14 +70,10 @@ namespace KAMBIO.CORE.Infrastructure.Repositories
                 .AsQueryable();
 
             if (monto.HasValue && monto.Value > 0)
-            {
                 query = query.Where(o => monto.Value >= o.MontoMinimo && monto.Value <= o.MontoMaximo);
-            }
 
             if (idBanco.HasValue && idBanco.Value > 0)
-            {
                 query = query.Where(o => o.OfertaMetodoPago.Any(om => om.IdBanco == idBanco.Value));
-            }
 
             return await query.AsNoTracking().ToListAsync();
         }
