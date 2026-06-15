@@ -12,7 +12,6 @@ var cnx = _config.GetConnectionString("DevConnection");
 
 builder.Services.AddDbContext<KambioDbContext>(options =>
     options.UseSqlServer(cnx));
-
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
@@ -24,8 +23,11 @@ builder.Services.AddScoped<IRecuperacionService, RecuperacionService>();
 builder.Services.AddScoped<ITokenRecuperacionRepository, TokenRecuperacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
-
 builder.Services.AddSignalR();
+builder.Services.AddScoped<IOfertaVentaRepository, OfertaVentaRepository>();
+builder.Services.AddScoped<IOfertaVentaService, OfertaVentaService>();
+
+// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
