@@ -46,6 +46,24 @@ namespace KAMBIO.API.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CrearOferta([FromBody] CrearOfertaDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var idUsuario = 1;
+                var resultado = await _ofertaService.CrearOfertaAsync(dto, idUsuario);
+                return Ok(new { mensaje = "Oferta publicada correctamente.", oferta = resultado });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
         [HttpPost("compra")]
         public async Task<IActionResult> CrearOfertaCompra(
             [FromHeader(Name = "X-Usuario-Id")] int? idUsuario,
