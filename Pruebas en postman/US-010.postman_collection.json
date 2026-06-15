@@ -1,0 +1,55 @@
+{
+  "info": {
+    "_postman_id": "41f1e0dd-4049-4f80-a1df-d1107d4c96cc",
+    "name": "US-010",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54272539",
+    "_collection_link": "https://go.postman.co/collection/54272539-41f1e0dd-4049-4f80-a1df-d1107d4c96cc?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "US-010 Subir comprobante",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "idTransaccion",
+              "value": "1",
+              "type": "text",
+              "uuid": "5b4cb0cc-b5d2-466c-a394-5a96c7d889e4"
+            },
+            {
+              "key": "idUsuario",
+              "value": "1",
+              "type": "text",
+              "uuid": "17d8023d-09e9-4965-8196-ef2dca507b7f"
+            },
+            {
+              "key": "archivo",
+              "type": "file",
+              "uuid": "16ea9369-fb54-436a-84c9-760064925d0a",
+              "src": "/C:/Users/PIERO/Downloads/cat-1192026_640.jpg"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:5126/api/Comprobante/subir",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5126",
+          "path": [
+            "api",
+            "Comprobante",
+            "subir"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
