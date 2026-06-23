@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using KAMBIO.CORE.Core.DTOs;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
-using KAMBIO.CORE.Infrastructure.Data;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace KAMBIO.CORE.Core.Services

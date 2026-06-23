@@ -1,6 +1,6 @@
 ﻿using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
-using KAMBIO.CORE.Infrastructure.Data;
+
 using Microsoft.AspNetCore.Http;
 
 namespace KAMBIO.CORE.Core.Services

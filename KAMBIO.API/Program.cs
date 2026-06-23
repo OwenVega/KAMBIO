@@ -5,11 +5,20 @@ using KAMBIO.CORE.Core.Interfaces;
 using KAMBIO.CORE.Core.Services;
 using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.CORE.Services;
-using KAMBIO.CORE.Infrastructure.Data;
 using KAMBIO.CORE.Infrastructure.Repositories;
 using KAMBIO.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:9000", "http://localhost:9001")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var _config = builder.Configuration;
 var cnx = _config.GetConnectionString("DevConnection");
@@ -64,6 +73,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("PermitirFrontend");
 
 app.UseStaticFiles();
 app.UseAuthorization();

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using KAMBIO.CORE.Core.Entities;
-using KAMBIO.CORE.Infrastructure.Data;
+
 using KAMBIO.CORE.CORE.Interfaces;
 
 namespace KAMBIO.CORE.Infrastructure.Repositories
