@@ -8,7 +8,7 @@
 
         <q-tabs v-model="tabNav" class="text-grey-7" active-color="primary" indicator-color="primary">
           <q-tab name="intercambio" label="Intercambio" no-caps />
-          <q-tab name="ofertas" label="Ofertas" no-caps />
+          <q-tab name="ofertas" label="Ofertas" no-caps to="/publicar-oferta" />
           <q-tab name="historial" label="Historial" no-caps />
         </q-tabs>
 
