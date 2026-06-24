@@ -6,10 +6,10 @@
           Kambio
         </q-toolbar-title>
 
-        <q-tabs v-model="tabNav" class="text-grey-7" active-color="primary" indicator-color="primary">
-          <q-tab name="intercambio" label="Intercambio" no-caps />
-          <q-tab name="ofertas" label="Ofertas" no-caps to="/publicar-oferta" />
-          <q-tab name="historial" label="Historial" no-caps />
+        <q-tabs class="text-grey-7" active-color="primary" indicator-color="primary">
+          <q-route-tab name="intercambio" label="Intercambio" no-caps to="/marketplace" />
+          <q-route-tab name="ofertas" label="Mis Ofertas" no-caps to="/mis-ofertas" />
+          <q-route-tab name="historial" label="Historial" no-caps to="/historial" />
         </q-tabs>
 
         <q-space />
@@ -189,7 +189,7 @@ import { transaccionService } from '../services/transaccionService'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const tabNav = ref('intercambio')
+
 const tipoOferta = ref(1) // 1 = Compra, 2 = Venta
 const divisaOrigen = ref(1) // USD
 const divisaDestino = ref(2) // PEN

@@ -2,7 +2,6 @@ import api from './api'
 
 export const ofertaService = {
   async obtenerOfertasMercado (filtro) {
-    // filtro: { idTipoOferta, idDivisaOrigen, idDivisaDestino, monto, idBanco }
     const response = await api.get('/Mercado/ofertas', {
       params: {
         IdTipoOferta: filtro.idTipoOferta,
@@ -16,7 +15,6 @@ export const ofertaService = {
   },
 
   async crearOfertaCompra (idUsuario, datos) {
-    // datos: { idDivisaOrigen, idDivisaDestino, montoDisponible, montoMinimo, montoMaximo, tasaCambio, metodosPago }
     const response = await api.post('/Oferta/compra', {
       IdDivisaOrigen: datos.idDivisaOrigen,
       IdDivisaDestino: datos.idDivisaDestino,
@@ -34,7 +32,6 @@ export const ofertaService = {
   },
 
   async crearOfertaVenta (idUsuario, datos) {
-    // datos: { idDivisaOrigen, idDivisaDestino, montoDisponible, montoMinimo, montoMaximo, tasaCambio, idBancos }
     const response = await api.post('/OfertaVenta', {
       IdUsuario: idUsuario,
       IdDivisaOrigen: datos.idDivisaOrigen,
@@ -44,6 +41,19 @@ export const ofertaService = {
       MontoMaximo: datos.montoMaximo,
       TasaCambio: datos.tasaCambio,
       IdBancos: datos.idBancos
+    })
+    return response.data
+  },
+
+  async obtenerOfertasActivas () {
+    const response = await api.get('/Oferta/activas')
+    return response.data
+  },
+
+  async cancelarOferta (idOferta, idUsuario) {
+    const response = await api.put('/Oferta/cancelar', {
+      IdOferta: idOferta,
+      IdUsuario: idUsuario
     })
     return response.data
   }
