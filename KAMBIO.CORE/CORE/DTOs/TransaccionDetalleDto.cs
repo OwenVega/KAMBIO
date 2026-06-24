@@ -4,6 +4,8 @@
     {
         public int IdTransaccion { get; set; }
         public int IdOferta { get; set; }
+        public int IdUsuarioComprador { get; set; }
+        public int IdUsuarioVendedor { get; set; }
         public decimal Monto { get; set; }
         public decimal MontoEquivalente { get; set; }
         public decimal TasaCambioAplicada { get; set; }
