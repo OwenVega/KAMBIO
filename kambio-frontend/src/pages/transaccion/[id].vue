@@ -41,10 +41,8 @@
 
               <div class="row q-col-gutter-md">
                 <div class="col-6">
-                  <div class="text-caption text-grey-7">Envías</div>
-                  <div class="text-h6 text-weight-bold">
-                    {{ formatearMoneda(transaccion.monto) }}
-                  </div>
+                  <div class="text-caption text-grey-7">Tipo de Operación</div>
+                  <div class="text-weight-medium">{{ tipoOperacionPersonal }}</div>
                 </div>
                 <div class="col-6 text-right">
                   <div class="text-caption text-grey-7">Recibes</div>
@@ -63,7 +61,7 @@
                 </div>
                 <div class="col-6">
                   <div class="text-caption text-grey-7">Tipo de Operación</div>
-                  <div class="text-weight-medium">{{ transaccion.tipoOperacion }}</div>
+                  <div class="text-weight-medium">{{ tipoOperacionPersonal }}</div>
                 </div>
               </div>
 
@@ -163,6 +161,11 @@ const colorEstado = computed(() => {
     'En Disputa': 'deep-orange'
   }
   return mapa[transaccion.value?.estadoNombre] || 'grey'
+})
+const tipoOperacionPersonal = computed(() => {
+  if (!transaccion.value) return ''
+  const esComprador = String(transaccion.value.idUsuarioComprador) === String(authStore.usuarioId)
+  return esComprador ? 'Compra' : 'Venta'
 })
 
 function formatearMoneda (valor) {

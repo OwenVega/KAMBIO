@@ -33,6 +33,8 @@ namespace KAMBIO.CORE.Core.Services
             {
                 IdTransaccion = t.IdTransaccion,
                 IdOferta = t.IdOferta,
+                IdUsuarioComprador = t.IdUsuarioComprador,
+                IdUsuarioVendedor = t.IdUsuarioVendedor,
                 Monto = t.Monto,
                 MontoEquivalente = t.MontoEquivalente,
                 TasaCambioAplicada = t.TasaCambioAplicada,
@@ -204,6 +206,8 @@ namespace KAMBIO.CORE.Core.Services
             {
                 IdTransaccion = creada.IdTransaccion,
                 IdOferta = creada.IdOferta,
+                IdUsuarioComprador = creada.IdUsuarioComprador,
+                IdUsuarioVendedor = creada.IdUsuarioVendedor,
                 Monto = creada.Monto,
                 MontoEquivalente = creada.MontoEquivalente,
                 TasaCambioAplicada = creada.TasaCambioAplicada,
