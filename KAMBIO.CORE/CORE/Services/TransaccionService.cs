@@ -65,9 +65,29 @@ namespace KAMBIO.CORE.Core.Services
                 throw new InvalidOperationException("Transición de estado no permitida.");
 
             if (dto.IdEstadoTransaccion == 4)
+            {
                 t.FechaCompletado = DateTime.Now;
+
+                // Si se completa la transacción, la oferta también se marca como Completada
+                var ofertaCompletada = await _context.Oferta.FindAsync(t.IdOferta);
+                if (ofertaCompletada != null)
+                {
+                    ofertaCompletada.IdEstadoOferta = 3; // Completada
+                    _context.Oferta.Update(ofertaCompletada);
+                }
+            }
             else if (dto.IdEstadoTransaccion == 5)
+            {
                 t.FechaCancelacion = DateTime.Now;
+
+                // Si se cancela la transacción, la oferta vuelve a estar Activa
+                var oferta = await _context.Oferta.FindAsync(t.IdOferta);
+                if (oferta != null)
+                {
+                    oferta.IdEstadoOferta = 1; // Activa
+                    _context.Oferta.Update(oferta);
+                }
+            }
 
             t.IdEstadoTransaccion = dto.IdEstadoTransaccion;
 
@@ -199,6 +219,9 @@ namespace KAMBIO.CORE.Core.Services
                 ConfirmadoPorComprador = false,
                 ConfirmadoPorVendedor = false
             };
+            oferta.IdEstadoOferta = 4; // Emparejada
+            _context.Oferta.Update(oferta);
+            await _context.SaveChangesAsync();
 
             var creada = await _transaccionRepository.CrearAsync(nuevaTransaccion);
 

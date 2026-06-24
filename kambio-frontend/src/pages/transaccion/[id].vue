@@ -64,6 +64,39 @@
                   <div class="text-weight-medium">{{ tipoOperacionPersonal }}</div>
                 </div>
               </div>
+              <div v-if="transaccion.estadoNombre === 'En Proceso'" class="q-mb-md">
+                  <q-separator class="q-mb-md" />
+                  <div class="text-caption text-grey-7 q-mb-sm">Comprobante de Pago</div>
+                  <q-list v-if="comprobanteSubido" bordered separator class="rounded-borders">
+                    <q-item>
+                      <q-item-section avatar>
+                        <q-icon name="description" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-medium">{{ nombreArchivoSubido }}</q-item-label>
+                        <q-item-label caption>Subido el {{ new Date().toLocaleString('es-PE', { dateStyle: 'medium', timeStyle: 'short' }) }}</q-item-label>
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-icon name="check_circle" color="positive" />
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                  <div v-else>
+                    <q-file
+                      v-model="archivoComprobante"
+                      label="Subir imagen del voucher (JPG, PNG)"
+                      outlined
+                      dense
+                      accept="image/jpeg,image/png"
+                      @update:model-value="subirComprobante"
+                    >
+                      <template v-slot:prepend>
+                        <q-icon name="attach_file" />
+                      </template>
+                    </q-file>
+                    <q-linear-progress v-if="subiendoComprobante" indeterminate color="primary" class="q-mt-sm" />
+                  </div>
+                </div>
 
               <q-separator class="q-my-md" />
 
@@ -142,14 +175,21 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth-store'
 import { transaccionService } from '../../services/transaccionService'
+import { comprobanteService } from '../../services/comprobanteService'
+import { useQuasar } from 'quasar'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const $q = useQuasar()
 
 const transaccion = ref(null)
 const cargando = ref(true)
 const actualizando = ref(false)
+const archivoComprobante = ref(null)
+const subiendoComprobante = ref(false)
+const nombreArchivoSubido = ref('')
+const comprobanteSubido = ref(false)
 
 const colorEstado = computed(() => {
   const mapa = {
@@ -207,6 +247,21 @@ async function confirmarPago () {
     alert(mensaje)
   } finally {
     actualizando.value = false
+  }
+}
+async function subirComprobante (archivo) {
+  if (!archivo) return
+  subiendoComprobante.value = true
+  try {
+    await comprobanteService.subirComprobante(transaccion.value.idTransaccion, authStore.usuarioId, archivo)
+    comprobanteSubido.value = true
+    nombreArchivoSubido.value = archivo.name
+    $q.notify({ type: 'positive', message: 'Comprobante subido correctamente.', icon: 'check_circle' })
+  } catch (error) {
+    const mensaje = error.response?.data?.error || 'No se pudo subir el comprobante.'
+    alert(mensaje)
+  } finally {
+    subiendoComprobante.value = false
   }
 }
 async function completarTransaccion () {
