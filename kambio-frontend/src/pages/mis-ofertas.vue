@@ -17,7 +17,29 @@
         <q-btn flat round icon="add" to="/publicar-oferta">
           <q-tooltip>Publicar nueva oferta</q-tooltip>
         </q-btn>
-        <q-btn flat round icon="account_circle" @click="cerrarSesion" />
+        <q-btn flat round icon="account_circle">
+        <q-menu anchor="bottom right" self="top right">
+          <q-list style="min-width: 200px">
+            <q-item-label header class="text-caption text-grey-7">
+              {{ authStore.correo }}
+            </q-item-label>
+            <q-separator />
+            <q-item clickable v-close-popup to="/perfil">
+              <q-item-section avatar>
+                <q-icon name="person" />
+              </q-item-section>
+              <q-item-section>Mi Perfil</q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item clickable v-close-popup @click="cerrarSesion">
+              <q-item-section avatar>
+                <q-icon name="logout" color="negative" />
+              </q-item-section>
+              <q-item-section class="text-negative">Cerrar Sesión</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
       </q-toolbar>
     </q-header>
 
