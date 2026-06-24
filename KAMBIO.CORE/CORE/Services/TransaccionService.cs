@@ -146,5 +146,75 @@ namespace KAMBIO.CORE.Core.Services
                 TotalPaginas = totalPaginas
             };
         }
+        public async Task<TransaccionDetalleDto> CrearTransaccionDesdeOfertaAsync(int idOferta, int idUsuarioComprador)
+        {
+            var oferta = await _context.Oferta
+                .Include(o => o.IdDivisaOrigenNavigation)
+                .Include(o => o.IdDivisaDestinoNavigation)
+                .FirstOrDefaultAsync(o => o.IdOferta == idOferta)
+                ?? throw new InvalidOperationException("La oferta no existe.");
+
+            if (oferta.IdEstadoOferta != 1)
+                throw new InvalidOperationException("Esta oferta ya no está disponible.");
+
+            if (oferta.IdUsuario == idUsuarioComprador)
+                throw new InvalidOperationException("No puedes iniciar una transacción con tu propia oferta.");
+
+            // Determinar quién es comprador y quién es vendedor según el tipo de oferta
+            // IdTipoOferta: 1 = Compra (el anunciante quiere comprar), 2 = Venta (el anunciante quiere vender)
+            int idUsuarioComprara;
+            int idUsuarioVende;
+
+            if (oferta.IdTipoOferta == 1)
+            {
+                // El anunciante publicó que quiere COMPRAR, entonces el usuario que acepta VENDE
+                idUsuarioComprara = oferta.IdUsuario;
+                idUsuarioVende = idUsuarioComprador;
+            }
+            else
+            {
+                // El anunciante publicó que quiere VENDER, entonces el usuario que acepta COMPRA
+                idUsuarioComprara = idUsuarioComprador;
+                idUsuarioVende = oferta.IdUsuario;
+            }
+
+            var monto = oferta.MontoMinimo;
+            var montoEquivalente = Math.Round(monto * oferta.TasaCambio, 2);
+
+            var nuevaTransaccion = new Transaccion
+            {
+                IdOferta = oferta.IdOferta,
+                IdUsuarioComprador = idUsuarioComprara,
+                IdUsuarioVendedor = idUsuarioVende,
+                IdEstadoTransaccion = 1, // Pendiente
+                IdDivisaOrigen = oferta.IdDivisaOrigen,
+                IdDivisaDestino = oferta.IdDivisaDestino,
+                Monto = monto,
+                MontoEquivalente = montoEquivalente,
+                TasaCambioAplicada = oferta.TasaCambio,
+                TipoOperacion = oferta.IdTipoOferta == 1 ? "Compra" : "Venta",
+                FechaInicio = DateTime.Now,
+                ConfirmadoPorComprador = false,
+                ConfirmadoPorVendedor = false
+            };
+
+            var creada = await _transaccionRepository.CrearAsync(nuevaTransaccion);
+
+            return new TransaccionDetalleDto
+            {
+                IdTransaccion = creada.IdTransaccion,
+                IdOferta = creada.IdOferta,
+                Monto = creada.Monto,
+                MontoEquivalente = creada.MontoEquivalente,
+                TasaCambioAplicada = creada.TasaCambioAplicada,
+                TipoOperacion = creada.TipoOperacion,
+                EstadoNombre = "Pendiente",
+                FechaInicio = creada.FechaInicio,
+                FechaConfirmacionPago = creada.FechaConfirmacionPago,
+                FechaCompletado = creada.FechaCompletado,
+                ConfirmadoPorComprador = creada.ConfirmadoPorComprador,
+                ConfirmadoPorVendedor = creada.ConfirmadoPorVendedor
+            };
+        }
     }
 }

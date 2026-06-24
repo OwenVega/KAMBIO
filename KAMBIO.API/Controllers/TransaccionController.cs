@@ -60,5 +60,25 @@ namespace KAMBIO.API.Controllers
             var historial = await _transaccionService.ObtenerHistorialUsuarioAsync(idUsuario, filtro);
             return Ok(historial);
         }
+        [HttpPost("desde-oferta/{idOferta}")]
+        public async Task<IActionResult> CrearDesdeOferta(int idOferta, [FromHeader(Name = "X-Usuario-Id")] int? idUsuario)
+        {
+            if (idUsuario == null || idUsuario <= 0)
+                return Unauthorized(new { mensaje = "Debe iniciar sesión para realizar esta acción." });
+
+            try
+            {
+                var resultado = await _transaccionService.CrearTransaccionDesdeOfertaAsync(idOferta, idUsuario.Value);
+                return Ok(new { mensaje = "Transacción iniciada correctamente.", transaccion = resultado });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error interno.", detalle = ex.Message });
+            }
+        }
     }
 }

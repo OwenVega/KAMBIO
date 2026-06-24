@@ -184,6 +184,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth-store'
 import { ofertaService } from '../services/ofertaService'
+import { transaccionService } from '../services/transaccionService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -255,9 +256,14 @@ async function buscarOfertas () {
   }
 }
 
-function seleccionarOferta (oferta) {
-  // Próximamente: navegar a la pantalla de transacción (US-007)
-  console.log('Oferta seleccionada:', oferta)
+async function seleccionarOferta (oferta) {
+  try {
+    const resultado = await transaccionService.crearDesdeOferta(oferta.idOferta, authStore.usuarioId)
+    router.push(`/transaccion/${resultado.transaccion.idTransaccion}`)
+  } catch (error) {
+    const mensaje = error.response?.data?.error || 'No se pudo iniciar la transacción.'
+    alert(mensaje)
+  }
 }
 
 function cerrarSesion () {
