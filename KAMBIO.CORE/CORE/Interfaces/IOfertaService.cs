@@ -12,5 +12,6 @@ namespace KAMBIO.CORE.CORE.Interfaces
         Task<OfertaRespuestaDto> CrearOfertaAsync(CrearOfertaDto dto, int idUsuario);
         Task<List<OfertaResponseDTO>> ObtenerOfertasActivas();
         Task CancelarOfertaAsync(int idOferta, int idUsuario);
+        Task<List<OfertaP2PDTO>> ObtenerOfertasMercadoAsync(FiltroOfertaDTO filtro);
     }
 }

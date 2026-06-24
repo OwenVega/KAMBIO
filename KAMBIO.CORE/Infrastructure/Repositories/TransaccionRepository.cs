@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
-using KAMBIO.CORE.Infrastructure.Data;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace KAMBIO.CORE.Infrastructure.Repositories
@@ -82,6 +82,19 @@ namespace KAMBIO.CORE.Infrastructure.Repositories
                          && t.FechaCompletado.Value.Year == anio)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+        public async Task<Transaccion> CrearAsync(Transaccion transaccion)
+        {
+            _context.Transaccion.Add(transaccion);
+            await _context.SaveChangesAsync();
+
+            return await _context.Transaccion
+                .Include(t => t.IdDivisaOrigenNavigation)
+                .Include(t => t.IdDivisaDestinoNavigation)
+                .Include(t => t.IdEstadoTransaccionNavigation)
+                .Include(t => t.IdUsuarioCompradorNavigation)
+                .Include(t => t.IdUsuarioVendedorNavigation)
+                .FirstAsync(t => t.IdTransaccion == transaccion.IdTransaccion);
         }
     }
 }

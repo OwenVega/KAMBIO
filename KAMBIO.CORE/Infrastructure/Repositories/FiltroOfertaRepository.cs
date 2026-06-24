@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
-using KAMBIO.CORE.Infrastructure.Data;
+
 using KAMBIO.CORE.Core.DTOs;
 
 namespace KAMBIO.CORE.Infrastructure.Repositories

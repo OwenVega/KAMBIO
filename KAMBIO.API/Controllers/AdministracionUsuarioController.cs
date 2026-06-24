@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using KAMBIO.CORE.Core.DTOs;
+using KAMBIO.CORE.Core.Interfaces;
+using KAMBIO.CORE.CORE.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using KAMBIO.CORE.Core.DTOs;
-using KAMBIO.CORE.CORE.Interfaces;
 
 namespace KAMBIO.API.Controllers
 {

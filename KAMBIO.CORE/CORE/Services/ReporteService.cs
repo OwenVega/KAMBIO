@@ -1,13 +1,14 @@
 ﻿using ClosedXML.Excel;
 using KAMBIO.CORE.Core.DTOs;
+using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
-using KAMBIO.CORE.Infrastructure.Data;
+
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace KAMBIO.CORE.Core.Interfaces
+namespace KAMBIO.CORE.Core.Services
 {
     public class ReporteService : IReporteService
     {

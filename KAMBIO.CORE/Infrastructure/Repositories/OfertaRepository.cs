@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using KAMBIO.CORE.Infrastructure.Data;
+
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
 
@@ -159,6 +159,28 @@ namespace KAMBIO.CORE.Infrastructure.Repositories
                 .AnyAsync(t => t.IdOferta == idOferta &&
                                t.IdEstadoTransaccion != 4 &&
                                t.IdEstadoTransaccion != 5);
+        }
+
+        // ===== Métodos para CrearOfertaAsync (US-022) =====
+
+        public async Task<Oferta> CreateAsync(Oferta oferta)
+        {
+            _context.Oferta.Add(oferta);
+            await _context.SaveChangesAsync();
+
+            return await _context.Oferta
+                .Include(o => o.IdUsuarioNavigation)
+                .Include(o => o.IdDivisaOrigenNavigation)
+                .Include(o => o.IdDivisaDestinoNavigation)
+                .Include(o => o.IdTipoOfertaNavigation)
+                .Include(o => o.IdEstadoOfertaNavigation)
+                .Include(o => o.OfertaMetodoPago).ThenInclude(omp => omp.IdBancoNavigation)
+                .FirstAsync(o => o.IdOferta == oferta.IdOferta);
+        }
+
+        public async Task<Banco?> GetBancoByIdAsync(int id)
+        {
+            return await _context.Banco.FindAsync(id);
         }
     }
 }
