@@ -1,5 +1,6 @@
 ﻿using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.Core.DTOs;
+using KAMBIO.CORE.Core.Entities;
 
 namespace KAMBIO.CORE.Core.Services
 {
@@ -12,7 +13,29 @@ namespace KAMBIO.CORE.Core.Services
         {
             _repository = repository;
         }
+        public async Task<DisputaDTO> CrearDisputaAsync(CrearDisputaDto dto)
+        {
+            var nuevaDisputa = new Disputa
+            {
+                IdTransaccion = dto.IdTransaccion,
+                IdUsuarioReporta = dto.IdUsuarioReporta,
+                IdEstadoDisputa = 1, // Pendiente
+                Descripcion = dto.Descripcion,
+                FechaReporte = DateTime.Now
+            };
 
+            var creada = await _repository.CrearDisputaAsync(nuevaDisputa);
+
+            return new DisputaDTO
+            {
+                IdDisputa = creada.IdDisputa,
+                IdTransaccion = creada.IdTransaccion,
+                UsuarioReportante = $"{creada.IdUsuarioReportaNavigation.Nombres} {creada.IdUsuarioReportaNavigation.Apellidos}",
+                Estado = creada.IdEstadoDisputaNavigation.Nombre,
+                Descripcion = creada.Descripcion,
+                FechaReporte = creada.FechaReporte
+            };
+        }
         public async Task<List<DisputaDTO>> ObtenerDisputas()
         {
             var lista =

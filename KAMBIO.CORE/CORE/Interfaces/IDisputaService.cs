@@ -4,6 +4,7 @@ namespace KAMBIO.CORE.CORE.Interfaces
 {
     public interface IDisputaService
     {
+        Task<DisputaDTO> CrearDisputaAsync(CrearDisputaDto dto);
         Task<List<DisputaDTO>> ObtenerDisputas();
 
         Task<DetalleDisputaDTO?> ObtenerDisputaPorId(int id);
@@ -15,5 +16,6 @@ namespace KAMBIO.CORE.CORE.Interfaces
         Task<bool> RechazarDisputa(
             int id,
             ResolverDisputaDTO dto);
+        
     }
 }

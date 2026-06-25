@@ -10,6 +10,7 @@
           <q-route-tab name="intercambio" label="Intercambio" no-caps to="/marketplace" />
           <q-route-tab name="ofertas" label="Mis Ofertas" no-caps to="/mis-ofertas" />
           <q-route-tab name="historial" label="Historial" no-caps to="/historial" />
+          <q-route-tab name="billeteras" label="Billeteras" no-caps to="/billeteras" />
           <q-route-tab name="alertas" label="Alertas" no-caps to="/alertas" />
         </q-tabs>
 
@@ -17,6 +18,9 @@
 
         <q-btn flat round icon="add" to="/publicar-oferta">
           <q-tooltip>Publicar nueva oferta</q-tooltip>
+        </q-btn>
+        <q-btn flat round icon="notifications" to="/notificaciones">
+          <q-badge v-if="noLeidas > 0" color="red" floating>{{ noLeidas }}</q-badge>
         </q-btn>
         <q-btn flat round icon="account_circle">
         <q-menu anchor="bottom right" self="top right">
@@ -30,6 +34,12 @@
                 <q-icon name="person" />
               </q-item-section>
               <q-item-section>Mi Perfil</q-item-section>
+            </q-item>
+            <q-item v-if="authStore.esAdmin" clickable v-close-popup to="/admin/disputas">
+              <q-item-section avatar>
+                <q-icon name="gavel" color="orange" />
+              </q-item-section>
+              <q-item-section>Panel Admin</q-item-section>
             </q-item>
             <q-separator />
             <q-item clickable v-close-popup @click="cerrarSesion">

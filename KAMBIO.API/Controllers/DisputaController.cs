@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.Core.DTOs;
+using System;
 
 namespace KAMBIO.API.Controllers
 {
@@ -65,6 +66,19 @@ namespace KAMBIO.API.Controllers
 
             return Ok(
                 "Disputa gestionada exitosamente.");
+        }
+        [HttpPost]
+        public async Task<IActionResult> CrearDisputa([FromBody] CrearDisputaDto dto)
+        {
+            try
+            {
+                var resultado = await _service.CrearDisputaAsync(dto);
+                return Ok(new { mensaje = "Disputa reportada correctamente.", data = resultado });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
     }
 }

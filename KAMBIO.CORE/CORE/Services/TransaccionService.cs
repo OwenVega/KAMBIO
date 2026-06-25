@@ -15,11 +15,13 @@ namespace KAMBIO.CORE.Core.Services
     {
         private readonly KambioDbContext _context;
         private readonly ITransaccionRepository _transaccionRepository;
+        private readonly INotificacionService _notificacionService;
 
-        public TransaccionService(KambioDbContext context, ITransaccionRepository transaccionRepository)
+        public TransaccionService(KambioDbContext context, ITransaccionRepository transaccionRepository, INotificacionService notificacionService)
         {
             _context = context;
             _transaccionRepository = transaccionRepository;
+            _notificacionService = notificacionService;
         }
 
         public async Task<TransaccionDetalleDto> ObtenerPorIdAsync(int idTransaccion)
@@ -65,9 +67,29 @@ namespace KAMBIO.CORE.Core.Services
                 throw new InvalidOperationException("Transición de estado no permitida.");
 
             if (dto.IdEstadoTransaccion == 4)
+            {
                 t.FechaCompletado = DateTime.Now;
+
+                // Si se completa la transacción, la oferta también se marca como Completada
+                var ofertaCompletada = await _context.Oferta.FindAsync(t.IdOferta);
+                if (ofertaCompletada != null)
+                {
+                    ofertaCompletada.IdEstadoOferta = 3; // Completada
+                    _context.Oferta.Update(ofertaCompletada);
+                }
+            }
             else if (dto.IdEstadoTransaccion == 5)
+            {
                 t.FechaCancelacion = DateTime.Now;
+
+                // Si se cancela la transacción, la oferta vuelve a estar Activa
+                var oferta = await _context.Oferta.FindAsync(t.IdOferta);
+                if (oferta != null)
+                {
+                    oferta.IdEstadoOferta = 1; // Activa
+                    _context.Oferta.Update(oferta);
+                }
+            }
 
             t.IdEstadoTransaccion = dto.IdEstadoTransaccion;
 
@@ -82,6 +104,25 @@ namespace KAMBIO.CORE.Core.Services
             _context.HistorialEstadoTransaccion.Add(historial);
 
             await _context.SaveChangesAsync();
+
+            // Notificar a la otra parte sobre el cambio de estado
+            var idOtraParteNotificar = dto.IdUsuarioCambio == t.IdUsuarioComprador ? t.IdUsuarioVendedor : t.IdUsuarioComprador;
+            var nombreEstado = dto.IdEstadoTransaccion switch
+            {
+                2 => "En Proceso",
+                3 => "Pago Realizado",
+                4 => "Completada",
+                5 => "Cancelada",
+                6 => "En Disputa",
+                _ => "Actualizada"
+            };
+            await _notificacionService.CrearNotificacionAsync(
+                idOtraParteNotificar,
+                "Transacción actualizada",
+                $"La transacción #{t.IdTransaccion} ha cambiado de estado a: {nombreEstado}.",
+                t.IdTransaccion,
+                "Transaccion"
+            );
         }
 
         public async Task<HistorialPaginadoDTO> ObtenerHistorialUsuarioAsync(int idUsuario, FiltroHistorialDTO filtro)
@@ -199,8 +240,21 @@ namespace KAMBIO.CORE.Core.Services
                 ConfirmadoPorComprador = false,
                 ConfirmadoPorVendedor = false
             };
+            oferta.IdEstadoOferta = 4; // Emparejada
+            _context.Oferta.Update(oferta);
+            await _context.SaveChangesAsync();
 
             var creada = await _transaccionRepository.CrearAsync(nuevaTransaccion);
+            // Notificar al dueño de la oferta original que alguien la aceptó
+            var idDuenoOferta = oferta.IdUsuario;
+            var idOtraParte = idDuenoOferta == idUsuarioComprara ? idUsuarioVende : idUsuarioComprara;
+            await _notificacionService.CrearNotificacionAsync(
+                idDuenoOferta,
+                "¡Oferta aceptada!",
+                $"Un usuario ha aceptado tu oferta de {monto} {oferta.IdDivisaOrigenNavigation?.Codigo}. Procede con la transacción.",
+                creada.IdTransaccion,
+                "Transaccion"
+            );
 
             return new TransaccionDetalleDto
             {

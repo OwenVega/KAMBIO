@@ -75,4 +75,30 @@ public class VerificacionController : ControllerBase
             return NotFound(new { mensaje = "Solicitud no encontrada." });
         return Ok(resultado);
     }
+    // POST /api/verificacion/subir-imagen - Sube la foto del DNI (frontal o posterior) y devuelve la ruta
+    [HttpPost("subir-imagen")]
+    public async Task<IActionResult> SubirImagen(IFormFile archivo)
+    {
+        if (archivo == null || archivo.Length == 0)
+            return BadRequest(new { mensaje = "No se proporcionó ninguna imagen." });
+
+        var extensiones = new[] { ".jpg", ".jpeg", ".png" };
+        var extension = Path.GetExtension(archivo.FileName).ToLower();
+        if (!extensiones.Contains(extension))
+            return BadRequest(new { mensaje = "Solo se permiten archivos JPG o PNG." });
+
+        var carpeta = Path.Combine("wwwroot", "uploads", "verificaciones");
+        Directory.CreateDirectory(carpeta);
+
+        var nombreArchivo = $"dni_{Guid.NewGuid()}{extension}";
+        var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
+
+        using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+        {
+            await archivo.CopyToAsync(stream);
+        }
+
+        var rutaRelativa = $"/uploads/verificaciones/{nombreArchivo}";
+        return Ok(new { ruta = rutaRelativa });
+    }
 }

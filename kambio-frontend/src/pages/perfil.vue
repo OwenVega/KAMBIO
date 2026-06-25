@@ -10,10 +10,14 @@
           <q-route-tab name="intercambio" label="Intercambio" no-caps to="/marketplace" />
           <q-route-tab name="ofertas" label="Mis Ofertas" no-caps to="/mis-ofertas" />
           <q-route-tab name="historial" label="Historial" no-caps to="/historial" />
+          <q-route-tab name="billeteras" label="Billeteras" no-caps to="/billeteras" />
           <q-route-tab name="alertas" label="Alertas" no-caps to="/alertas" />
         </q-tabs>
 
         <q-space />
+        <q-btn flat round icon="notifications" to="/notificaciones">
+          <q-badge v-if="noLeidas > 0" color="red" floating>{{ noLeidas }}</q-badge>
+        </q-btn>
 
         <q-btn flat round icon="account_circle">
           <q-menu anchor="bottom right" self="top right">
@@ -27,6 +31,12 @@
                   <q-icon name="person" />
                 </q-item-section>
                 <q-item-section>Mi Perfil</q-item-section>
+              </q-item>
+              <q-item v-if="authStore.esAdmin" clickable v-close-popup to="/admin/disputas">
+                <q-item-section avatar>
+                  <q-icon name="gavel" color="orange" />
+                </q-item-section>
+                <q-item-section>Panel Admin</q-item-section>
               </q-item>
               <q-separator />
               <q-item clickable v-close-popup @click="cerrarSesion">
@@ -84,9 +94,9 @@
               <q-separator class="q-mb-md" />
 
               <div class="text-left q-gutter-sm">
-                <div class="row items-center q-gutter-sm">
+                <div class="row items-center q-gutter-sm cursor-pointer" @click="$router.push('/verificacion')">
                   <q-icon name="verified" color="green" size="20px" />
-                  <span class="text-caption">Estado de Identidad: Verificado</span>
+                  <span class="text-caption text-primary">Verificar mi identidad</span>
                 </div>
                 <div class="row items-center q-gutter-sm">
                   <q-icon name="email" color="grey-7" size="20px" />

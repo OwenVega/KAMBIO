@@ -49,7 +49,8 @@ namespace KAMBIO.API.Controllers
                     mensaje = "Inicio de sesión exitoso.",
                     usuarioId = usuario.IdUsuario,
                     nombres = usuario.Nombres,
-                    correo = usuario.Correo
+                    correo = usuario.Correo,
+                    idRol = usuario.IdRol
                 });
             }
             catch (UnauthorizedAccessException ex)
