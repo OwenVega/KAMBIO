@@ -218,6 +218,10 @@ function cerrarSesion () {
 }
 
 onMounted(() => {
+  if (!authStore.esAdmin) {
+    router.push('/marketplace')
+    return
+  }
   cargarDisputas()
 })
 </script>
