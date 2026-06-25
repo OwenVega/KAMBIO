@@ -18,6 +18,9 @@
         <q-btn flat round icon="add" to="/publicar-oferta">
           <q-tooltip>Publicar nueva oferta</q-tooltip>
         </q-btn>
+        <q-btn flat round icon="notifications" to="/notificaciones">
+          <q-badge v-if="noLeidas > 0" color="red" floating>{{ noLeidas }}</q-badge>
+        </q-btn>
         <q-btn flat round icon="account_circle">
         <q-menu anchor="bottom right" self="top right">
           <q-list style="min-width: 200px">

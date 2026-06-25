@@ -14,7 +14,9 @@
         </q-tabs>
 
         <q-space />
-
+        <q-btn flat round icon="notifications" to="/notificaciones">
+          <q-badge v-if="noLeidas > 0" color="red" floating>{{ noLeidas }}</q-badge>
+        </q-btn>
         <q-btn flat round icon="account_circle">
           <q-menu anchor="bottom right" self="top right">
             <q-list style="min-width: 200px">

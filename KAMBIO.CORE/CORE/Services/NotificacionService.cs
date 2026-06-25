@@ -1,6 +1,6 @@
 ﻿using KAMBIO.CORE.Core.DTOs;
 using KAMBIO.CORE.CORE.Interfaces;
-
+using KAMBIO.CORE.Core.Entities;
 namespace KAMBIO.CORE.CORE.Services
 {
     public class NotificacionService : INotificacionService
@@ -43,6 +43,22 @@ namespace KAMBIO.CORE.CORE.Services
         public async Task<int> ContarNoLeidasAsync(int idUsuario)
         {
             return await _notificacionRepository.ContarNoLeidasAsync(idUsuario);
+        }
+        public async Task CrearNotificacionAsync(int idUsuario, string titulo, string mensaje, int? idReferencia, string tipoReferencia)
+        {
+            var notificacion = new Notificacion
+            {
+                IdUsuario = idUsuario,
+                IdTipoNotificacion = 1,
+                Titulo = titulo,
+                Mensaje = mensaje,
+                IdReferencia = idReferencia,
+                TipoReferencia = tipoReferencia,
+                Leida = false,
+                FechaCreacion = DateTime.Now
+            };
+
+            await _notificacionRepository.CrearNotificacionAsync(notificacion);
         }
     }
 }
