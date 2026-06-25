@@ -10,6 +10,7 @@
           <q-route-tab name="intercambio" label="Intercambio" no-caps to="/marketplace" />
           <q-route-tab name="ofertas" label="Mis Ofertas" no-caps to="/mis-ofertas" />
           <q-route-tab name="historial" label="Historial" no-caps to="/historial" />
+          <q-route-tab name="billeteras" label="Billeteras" no-caps to="/billeteras" />
           <q-route-tab name="alertas" label="Alertas" no-caps to="/alertas" />
         </q-tabs>
 
