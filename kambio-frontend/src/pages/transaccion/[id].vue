@@ -123,7 +123,49 @@
                   color="positive"
                 />
               </q-timeline>
+              <div v-if="transaccion.estadoNombre === 'Completada'" class="q-mb-md">
+                <q-separator class="q-mb-md" />
+                <div v-if="!yaCalificado" class="text-center">
+                  <q-icon name="check_circle" color="positive" size="48px" />
+                  <div class="text-h6 text-weight-bold q-mt-sm">¡Transacción Finalizada!</div>
+                  <div class="text-caption text-grey-7 q-mb-md">Has completado el intercambio con éxito.</div>
 
+                  <div class="text-subtitle2 q-mb-sm">Califica tu experiencia</div>
+                  <q-rating
+                    v-model="estrellas"
+                    size="2.5em"
+                    color="amber"
+                    icon="star_border"
+                    icon-selected="star"
+                    :max="5"
+                  />
+
+                  <q-input
+                    v-model="comentarioCalificacion"
+                    label="Comentario (opcional)"
+                    outlined
+                    dense
+                    class="q-mt-md"
+                    type="textarea"
+                    rows="2"
+                  />
+
+                  <q-btn
+                    label="Enviar Calificación"
+                    color="dark"
+                    unelevated
+                    class="full-width q-mt-md"
+                    :disable="estrellas === 0"
+                    :loading="enviandoCalificacion"
+                    @click="enviarCalificacion"
+                  />
+                </div>
+
+                <q-banner v-else class="bg-green-1 text-green-9 rounded-borders text-center">
+                  <q-icon name="star" color="amber" size="20px" />
+                  Calificaste esta transacción con {{ estrellas }} estrella{{ estrellas > 1 ? 's' : '' }}.
+                </q-banner>
+              </div>
               <q-separator class="q-my-md" />
 
               <div class="row q-gutter-sm">
@@ -177,11 +219,16 @@ import { useAuthStore } from '../../stores/auth-store'
 import { transaccionService } from '../../services/transaccionService'
 import { comprobanteService } from '../../services/comprobanteService'
 import { useQuasar } from 'quasar'
+import { calificacionService } from '../../services/calificacionService'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const $q = useQuasar()
+const estrellas = ref(0)
+const comentarioCalificacion = ref('')
+const enviandoCalificacion = ref(false)
+const yaCalificado = ref(false)
 
 const transaccion = ref(null)
 const cargando = ref(true)
@@ -299,7 +346,28 @@ async function cancelarTransaccion () {
     actualizando.value = false
   }
 }
+async function enviarCalificacion () {
+  enviandoCalificacion.value = true
+  try {
+    const idEvaluado = String(transaccion.value.idUsuarioComprador) === String(authStore.usuarioId)
+      ? transaccion.value.idUsuarioVendedor
+      : transaccion.value.idUsuarioComprador
 
+    await calificacionService.calificar({
+      idTransaccion: transaccion.value.idTransaccion,
+      idUsuarioEvalua: authStore.usuarioId,
+      idUsuarioEvaluado: idEvaluado,
+      estrellas: estrellas.value,
+      comentario: comentarioCalificacion.value
+    })
+    yaCalificado.value = true
+  } catch (error) {
+    const mensaje = error.response?.data?.error || 'No se pudo registrar la calificación.'
+    alert(mensaje)
+  } finally {
+    enviandoCalificacion.value = false
+  }
+}
 function cerrarSesion () {
   authStore.cerrarSesion()
   router.push('/login')
