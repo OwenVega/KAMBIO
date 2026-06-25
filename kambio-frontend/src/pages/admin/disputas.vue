@@ -15,6 +15,7 @@
                 </q-item-section>
                 <q-item-section>Volver al Marketplace</q-item-section>
               </q-item>
+
               <q-separator />
               <q-item clickable v-close-popup @click="cerrarSesion">
                 <q-item-section avatar>
@@ -43,6 +44,12 @@
                 <q-icon name="gavel" color="white" />
               </q-item-section>
               <q-item-section class="text-white">Disputas</q-item-section>
+            </q-item>
+            <q-item clickable to="/admin/reportes">
+              <q-item-section avatar>
+                <q-icon name="bar_chart" color="white" />
+              </q-item-section>
+              <q-item-section class="text-white">Reportes</q-item-section>
             </q-item>
           </q-list>
         </div>
