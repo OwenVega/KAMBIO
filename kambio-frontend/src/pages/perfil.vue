@@ -88,9 +88,9 @@
               <q-separator class="q-mb-md" />
 
               <div class="text-left q-gutter-sm">
-                <div class="row items-center q-gutter-sm">
+                <div class="row items-center q-gutter-sm cursor-pointer" @click="$router.push('/verificacion')">
                   <q-icon name="verified" color="green" size="20px" />
-                  <span class="text-caption">Estado de Identidad: Verificado</span>
+                  <span class="text-caption text-primary">Verificar mi identidad</span>
                 </div>
                 <div class="row items-center q-gutter-sm">
                   <q-icon name="email" color="grey-7" size="20px" />
