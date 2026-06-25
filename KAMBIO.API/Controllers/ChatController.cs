@@ -1,5 +1,3 @@
-// CONTROLADOR de Chat (API)
-// Endpoints para enviar mensajes y ver la conversación de una transacción.
 using Microsoft.AspNetCore.Mvc;
 using KAMBIO.CORE.Core.DTOs;
 using KAMBIO.CORE.Core.Interfaces;
@@ -17,18 +15,18 @@ public class ChatController : ControllerBase
         _mensajeChatService = mensajeChatService;
     }
 
-    // POST /api/chat/enviar - Enviar un mensaje en el chat de una transacción
-    // Body: { "idTransaccion": 1, "mensaje": "Hola, ya hice la transferencia" }
     [HttpPost("enviar")]
-    public async Task<IActionResult> EnviarMensaje([FromBody] EnviarMensajeDto dto)
+    public async Task<IActionResult> EnviarMensaje([FromHeader(Name = "X-Usuario-Id")] int? idUsuario, [FromBody] EnviarMensajeDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
+        if (idUsuario == null || idUsuario <= 0)
+            return Unauthorized(new { mensaje = "Debe iniciar sesión para enviar mensajes." });
+
         try
         {
-            var idUsuario = 1;  // Temporal: será el usuario logueado
-            var resultado = await _mensajeChatService.EnviarMensajeAsync(dto, idUsuario);
+            var resultado = await _mensajeChatService.EnviarMensajeAsync(dto, idUsuario.Value);
             return Ok(new { mensaje = "Mensaje enviado correctamente.", data = resultado });
         }
         catch (InvalidOperationException ex)
@@ -37,15 +35,15 @@ public class ChatController : ControllerBase
         }
     }
 
-    // GET /api/chat/{idTransaccion} - Ver todos los mensajes de una transacción
-    // Ejemplo: GET /api/chat/1
     [HttpGet("{idTransaccion}")]
-    public async Task<IActionResult> ObtenerMensajes(int idTransaccion)
+    public async Task<IActionResult> ObtenerMensajes(int idTransaccion, [FromHeader(Name = "X-Usuario-Id")] int? idUsuario)
     {
+        if (idUsuario == null || idUsuario <= 0)
+            return Unauthorized(new { mensaje = "Debe iniciar sesión para ver los mensajes." });
+
         try
         {
-            var idUsuario = 1;
-            var mensajes = await _mensajeChatService.ObtenerMensajesAsync(idTransaccion, idUsuario);
+            var mensajes = await _mensajeChatService.ObtenerMensajesAsync(idTransaccion, idUsuario.Value);
             return Ok(mensajes);
         }
         catch (InvalidOperationException ex)

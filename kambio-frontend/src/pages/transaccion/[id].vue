@@ -166,6 +166,48 @@
                   Calificaste esta transacción con {{ estrellas }} estrella{{ estrellas > 1 ? 's' : '' }}.
                 </q-banner>
               </div>
+              <div v-if="!['Cancelada'].includes(transaccion.estadoNombre)" class="q-mb-md">
+                <q-separator class="q-mb-md" />
+                <q-expansion-item icon="chat" label="Chat de la Transacción" default-opened>
+                  <q-card flat bordered class="q-mt-sm">
+                    <div ref="contenedorMensajes" class="chat-mensajes q-pa-md">
+                      <div
+                        v-for="msg in mensajes"
+                        :key="msg.idMensaje"
+                        class="row q-mb-sm"
+                        :class="esMio(msg) ? 'justify-end' : 'justify-start'"
+                      >
+                        <div class="chat-burbuja" :class="esMio(msg) ? 'chat-mia' : 'chat-otro'">
+                          <div v-if="!esMio(msg)" class="text-caption text-weight-bold">{{ msg.nombreUsuarioEnvia }}</div>
+                          <div>{{ msg.mensaje }}</div>
+                          <div class="text-caption" :class="esMio(msg) ? 'text-grey-3' : 'text-grey-6'">
+                            {{ formatearHora(msg.fechaEnvio) }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div v-if="mensajes.length === 0" class="text-center text-grey-6 q-py-md">
+                        Todavía no hay mensajes. Escribe el primero.
+                      </div>
+                    </div>
+
+                    <q-separator />
+
+                    <div class="row q-pa-sm q-gutter-sm items-center">
+                      <q-input
+                        v-model="nuevoMensaje"
+                        placeholder="Escribe un mensaje seguro..."
+                        outlined
+                        dense
+                        class="col"
+                        @keyup.enter="enviarMensaje"
+                      />
+                      <q-btn round color="primary" icon="send" :loading="enviandoMensaje" @click="enviarMensaje" />
+                    </div>
+                  </q-card>
+                </q-expansion-item>
+              </div>
+
               <q-separator class="q-my-md" />
 
               <div class="row q-gutter-sm">
@@ -213,13 +255,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth-store'
 import { transaccionService } from '../../services/transaccionService'
 import { comprobanteService } from '../../services/comprobanteService'
 import { useQuasar } from 'quasar'
 import { calificacionService } from '../../services/calificacionService'
+import { chatService } from '../../services/chatService'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -229,6 +272,11 @@ const estrellas = ref(0)
 const comentarioCalificacion = ref('')
 const enviandoCalificacion = ref(false)
 const yaCalificado = ref(false)
+const mensajes = ref([])
+const nuevoMensaje = ref('')
+const enviandoMensaje = ref(false)
+const contenedorMensajes = ref(null)
+let intervaloChat = null
 
 const transaccion = ref(null)
 const cargando = ref(true)
@@ -368,6 +416,35 @@ async function enviarCalificacion () {
     enviandoCalificacion.value = false
   }
 }
+function esMio (msg) {
+  return String(msg.idUsuarioEnvia) === String(authStore.usuarioId)
+}
+
+function formatearHora (fecha) {
+  return new Date(fecha).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
+}
+
+async function cargarMensajes () {
+  try {
+    mensajes.value = await chatService.obtenerMensajes(transaccion.value.idTransaccion, authStore.usuarioId)
+  } catch (error) {
+    console.error('Error al cargar mensajes:', error)
+  }
+}
+
+async function enviarMensaje () {
+  if (!nuevoMensaje.value.trim()) return
+  enviandoMensaje.value = true
+  try {
+    await chatService.enviarMensaje(transaccion.value.idTransaccion, nuevoMensaje.value, authStore.usuarioId)
+    nuevoMensaje.value = ''
+    await cargarMensajes()
+  } catch (error) {
+    console.error('Error al enviar mensaje:', error)
+  } finally {
+    enviandoMensaje.value = false
+  }
+}
 function cerrarSesion () {
   authStore.cerrarSesion()
   router.push('/login')
@@ -375,5 +452,35 @@ function cerrarSesion () {
 
 onMounted(() => {
   cargarTransaccion()
+  cargarMensajes()
+  intervaloChat = setInterval(cargarMensajes, 5000)
+})
+
+onUnmounted(() => {
+  if (intervaloChat) clearInterval(intervaloChat)
 })
 </script>
+
+
+<style scoped>
+.chat-mensajes {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.chat-burbuja {
+  max-width: 75%;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.chat-mia {
+  background: #1a1a1a;
+  color: white;
+}
+
+.chat-otro {
+  background: #f0f0f0;
+  color: #1a1a1a;
+}
+</style>
