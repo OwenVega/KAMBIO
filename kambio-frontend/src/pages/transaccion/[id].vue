@@ -238,6 +238,15 @@
                   :loading="actualizando"
                   @click="cancelarTransaccion"
                 />
+                <q-btn
+                  v-if="!['Completada', 'Cancelada'].includes(transaccion.estadoNombre)"
+                  label="Reportar Problema"
+                  flat
+                  color="grey-7"
+                  class="col"
+                  icon="report_problem"
+                  @click="mostrarDialogoDisputa = true"
+                />
               </div>
             </q-card>
           </div>
@@ -251,6 +260,43 @@
         </div>
       </q-page>
     </q-page-container>
+        <q-dialog v-model="mostrarDialogoDisputa">
+      <q-card style="min-width: 400px" class="q-pa-md">
+        <q-card-section>
+          <div class="text-h6 text-weight-bold">Reportar Problema</div>
+          <div class="text-caption text-grey-7">
+            Describe el problema que tuviste con esta transacción. Nuestro equipo lo revisará.
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-input
+            v-model="descripcionDisputa"
+            type="textarea"
+            rows="4"
+            outlined
+            label="Descripción del problema"
+            placeholder="Ej: La transferencia se realizó hace 3 horas pero el destinatario dice que no ha recibido nada."
+          />
+
+          <q-banner v-if="errorDisputa" class="bg-red-1 text-red-9 rounded-borders q-mt-sm">
+            {{ errorDisputa }}
+          </q-banner>
+
+          <div class="row q-gutter-sm justify-end q-mt-md">
+            <q-btn label="Cancelar" flat v-close-popup @click="descripcionDisputa = ''" />
+            <q-btn
+              label="Enviar Reporte"
+              color="negative"
+              unelevated
+              :loading="enviandoDisputa"
+              :disable="!descripcionDisputa.trim()"
+              @click="reportarProblema"
+            />
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 
@@ -263,6 +309,7 @@ import { useQuasar } from 'quasar'
 import { calificacionService } from '../../services/calificacionService'
 import { chatService } from '../../services/chatService'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { disputaService } from '../../services/disputaService'
 
 const route = useRoute()
 const router = useRouter()
@@ -277,7 +324,10 @@ const nuevoMensaje = ref('')
 const enviandoMensaje = ref(false)
 const contenedorMensajes = ref(null)
 let intervaloChat = null
-
+const mostrarDialogoDisputa = ref(false)
+const descripcionDisputa = ref('')
+const enviandoDisputa = ref(false)
+const errorDisputa = ref('')
 const transaccion = ref(null)
 const cargando = ref(true)
 const actualizando = ref(false)
@@ -429,6 +479,24 @@ async function cargarMensajes () {
     mensajes.value = await chatService.obtenerMensajes(transaccion.value.idTransaccion, authStore.usuarioId)
   } catch (error) {
     console.error('Error al cargar mensajes:', error)
+  }
+}
+async function reportarProblema () {
+  errorDisputa.value = ''
+  enviandoDisputa.value = true
+  try {
+    await disputaService.crearDisputa(
+      transaccion.value.idTransaccion,
+      authStore.usuarioId,
+      descripcionDisputa.value
+    )
+    mostrarDialogoDisputa.value = false
+    descripcionDisputa.value = ''
+    alert('Tu reporte fue enviado. Nuestro equipo lo revisará pronto.')
+  } catch (error) {
+    errorDisputa.value = error.response?.data?.mensaje || 'No se pudo enviar el reporte.'
+  } finally {
+    enviandoDisputa.value = false
   }
 }
 

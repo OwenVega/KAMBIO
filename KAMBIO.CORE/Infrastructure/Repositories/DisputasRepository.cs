@@ -38,5 +38,16 @@ namespace KAMBIO.CORE.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
+        public async Task<Disputa> CrearDisputaAsync(Disputa disputa)
+        {
+            _context.Disputa.Add(disputa);
+            await _context.SaveChangesAsync();
+
+            return await _context.Disputa
+                .Include(d => d.IdEstadoDisputaNavigation)
+                .Include(d => d.IdUsuarioReportaNavigation)
+                .Include(d => d.IdTransaccionNavigation)
+                .FirstAsync(d => d.IdDisputa == disputa.IdDisputa);
+        }
     }
 }
