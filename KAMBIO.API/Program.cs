@@ -1,12 +1,13 @@
 // PROGRAM.CS - Punto de entrada de la aplicación
-using Microsoft.EntityFrameworkCore;
+using KAMBIO.API.Hubs;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.Core.Interfaces;
 using KAMBIO.CORE.Core.Services;
 using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.CORE.Services;
 using KAMBIO.CORE.Infrastructure.Repositories;
-using KAMBIO.API.Hubs;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,15 @@ if (app.Environment.IsDevelopment())
 app.UseCors("PermitirFrontend");
 
 app.UseStaticFiles();
+
+
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "vouchers")),
+    RequestPath = "/vouchers"
+});
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<NotificacionHub>("/hubs/notificaciones");
