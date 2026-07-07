@@ -15,6 +15,7 @@
                 </q-item-section>
                 <q-item-section>Volver al Marketplace</q-item-section>
               </q-item>
+
               <q-separator />
               <q-item clickable v-close-popup @click="cerrarSesion">
                 <q-item-section avatar>
@@ -32,11 +33,23 @@
       <q-page class="row no-wrap">
         <div class="q-pa-md bg-dark text-white" style="width: 220px; min-height: 100%;">
           <q-list>
+            <q-item clickable to="/admin/usuarios">
+              <q-item-section avatar>
+                <q-icon name="people" color="white" />
+              </q-item-section>
+              <q-item-section class="text-white">Usuarios</q-item-section>
+            </q-item>
             <q-item clickable to="/admin/disputas" class="bg-primary rounded-borders">
               <q-item-section avatar>
                 <q-icon name="gavel" color="white" />
               </q-item-section>
               <q-item-section class="text-white">Disputas</q-item-section>
+            </q-item>
+            <q-item clickable to="/admin/reportes">
+              <q-item-section avatar>
+                <q-icon name="bar_chart" color="white" />
+              </q-item-section>
+              <q-item-section class="text-white">Reportes</q-item-section>
             </q-item>
           </q-list>
         </div>
@@ -218,6 +231,10 @@ function cerrarSesion () {
 }
 
 onMounted(() => {
+  if (!authStore.esAdmin) {
+    router.push('/marketplace')
+    return
+  }
   cargarDisputas()
 })
 </script>

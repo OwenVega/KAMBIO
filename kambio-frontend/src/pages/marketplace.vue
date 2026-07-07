@@ -31,6 +31,12 @@
                 </q-item-section>
                 <q-item-section>Mi Perfil</q-item-section>
               </q-item>
+              <q-item v-if="authStore.esAdmin" clickable v-close-popup to="/admin/disputas">
+                <q-item-section avatar>
+                  <q-icon name="gavel" color="orange" />
+                </q-item-section>
+                <q-item-section>Panel Admin</q-item-section>
+              </q-item>
               <q-separator />
               <q-item clickable v-close-popup @click="cerrarSesion">
                 <q-item-section avatar>
