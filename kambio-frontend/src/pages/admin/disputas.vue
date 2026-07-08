@@ -215,6 +215,8 @@
       </q-card>
     </q-dialog>
 
+
+
     <!-- Diálogo de sanción post-resolución -->
     <q-dialog v-model="mostrarDialogoBloqueo" persistent>
       <q-card style="min-width: 450px" class="q-pa-md" v-if="disputaResuelta">
@@ -288,6 +290,8 @@
       </q-card>
     </q-dialog>
 
+
+
     <!-- Imagen ampliada -->
     <q-dialog v-model="mostrarImagenAmpliada">
       <q-img :src="imagenAmpliada" style="max-width: 90vw; max-height: 90vh" />
@@ -322,12 +326,21 @@ const imagenAmpliada = ref('')
 
 // --- Flujo de bloqueo post-resolución ---
 const mostrarDialogoBloqueo = ref(false)
+
 const disputaResuelta = ref(null)
 const usuarioObjetivo = ref(null)
 const motivoBloqueo = ref('')
 const nuevoEstadoCuenta = ref(2)
 const procesandoBloqueo = ref(false)
 const errorBloqueo = ref('')
+
+const usuarioObjetivo = ref(null) // { idUsuario, nombre, lado }
+const motivoBloqueo = ref('')
+const nuevoEstadoCuenta = ref(2) // 2=Suspendido, 3=Bloqueado
+const procesandoBloqueo = ref(false)
+const errorBloqueo = ref('')
+const disputaResuelta = ref(null)
+
 
 const mostrarImagenAmpliada = computed({
   get: () => !!imagenAmpliada.value,
@@ -413,9 +426,15 @@ async function accionar (tipo) {
       await disputaService.rechazarDisputa(disputaSeleccionada.value.idDisputa, authStore.usuarioId, resolucionDetalle.value)
     }
 
+
+    // Guardamos referencia antes de cerrar el modal principal
+
     const d = disputaSeleccionada.value
     mostrarDetalle.value = false
     await cargarDisputas()
+
+
+    // Si se resolvió (no rechazó), preguntamos si se quiere sancionar al culpable
 
     if (tipo === 'resolver') {
       abrirDialogoBloqueo(d)
@@ -429,7 +448,11 @@ async function accionar (tipo) {
 
 function abrirDialogoBloqueo (disputa) {
   disputaResuelta.value = disputa
+
   usuarioObjetivo.value = null
+
+  // el admin elige, no se asume nadie por defecto
+
   motivoBloqueo.value = ''
   nuevoEstadoCuenta.value = 2
   errorBloqueo.value = ''

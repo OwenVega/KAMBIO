@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 ﻿using KAMBIO.CORE.Core.DTOs;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
 using Microsoft.EntityFrameworkCore;
+=======
+﻿using DocumentFormat.OpenXml.InkML;
+using KAMBIO.CORE.Core.DTOs;
+using KAMBIO.CORE.Core.Entities;
+using KAMBIO.CORE.CORE.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+>>>>>>> 376c6ff863e0da8f172f959c0e3d65fdae2fb5cc
 namespace KAMBIO.CORE.Core.Services
 {
     public class DisputaService : IDisputaService
@@ -11,7 +20,11 @@ namespace KAMBIO.CORE.Core.Services
 
         public DisputaService(
             IDisputaRepository repository,
+<<<<<<< HEAD
             KambioDbContext context) 
+=======
+            KambioDbContext context)
+>>>>>>> 376c6ff863e0da8f172f959c0e3d65fdae2fb5cc
         {
             _repository = repository;
             _context = context;

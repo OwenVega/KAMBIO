@@ -58,19 +58,25 @@ public class MensajeChatService : IMensajeChatService
         };
     }
 
-    // VER mensajes: trae la conversación y marca como leídos los mensajes de la otra persona
     public async Task<IEnumerable<MensajeRespuestaDto>> ObtenerMensajesAsync(int idTransaccion, int idUsuario)
     {
         var transaccion = await _context.Transaccion.FindAsync(idTransaccion);
         if (transaccion == null)
             throw new InvalidOperationException("La transacción no existe.");
 
-        // Verificar que seas parte
-        if (transaccion.IdUsuarioComprador != idUsuario && transaccion.IdUsuarioVendedor != idUsuario)
-            throw new InvalidOperationException("No eres parte de esta transacción.");
+        var esParte = transaccion.IdUsuarioComprador == idUsuario || transaccion.IdUsuarioVendedor == idUsuario;
 
-        // Marcar los mensajes de la otra persona como leídos automáticamente
-        await _mensajeRepository.MarcarComoLeidosAsync(idTransaccion, idUsuario);
+        if (!esParte)
+        {
+            var usuario = await _context.Usuario.FindAsync(idUsuario);
+            var esAdmin = usuario != null && usuario.IdRol == 2;
+            if (!esAdmin)
+                throw new InvalidOperationException("No eres parte de esta transacción.");
+        }
+
+        // Solo marcamos como leído si eres parte real de la conversación (no el admin espiando)
+        if (esParte)
+            await _mensajeRepository.MarcarComoLeidosAsync(idTransaccion, idUsuario);
 
         var mensajes = await _mensajeRepository.GetByTransaccionAsync(idTransaccion);
 
@@ -85,4 +91,6 @@ public class MensajeChatService : IMensajeChatService
             Leido = m.Leido
         });
     }
+
+    
 }
