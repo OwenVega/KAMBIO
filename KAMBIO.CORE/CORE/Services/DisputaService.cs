@@ -7,11 +7,14 @@ namespace KAMBIO.CORE.Core.Services
     public class DisputaService : IDisputaService
     {
         private readonly IDisputaRepository _repository;
+        private readonly KambioDbContext _context;
 
         public DisputaService(
-            IDisputaRepository repository)
+            IDisputaRepository repository,
+            KambioDbContext context) 
         {
             _repository = repository;
+            _context = context;
         }
         public async Task<DisputaDTO> CrearDisputaAsync(CrearDisputaDto dto)
         {
@@ -101,13 +104,9 @@ namespace KAMBIO.CORE.Core.Services
             };
         }
 
-        public async Task<bool> ResolverDisputa(
-            int id,
-            ResolverDisputaDTO dto)
+        public async Task<bool> ResolverDisputa(int id, ResolverDisputaDTO dto)
         {
-            var disputa =
-                await _repository.ObtenerDisputaPorId(id);
-
+            var disputa = await _repository.ObtenerDisputaPorId(id);
             if (disputa == null)
                 return false;
 
@@ -115,17 +114,25 @@ namespace KAMBIO.CORE.Core.Services
                 return false;
 
             disputa.IdEstadoDisputa = 2;
-
-            disputa.FechaResolucion =
-                DateTime.Now;
-
-            disputa.IdAdminResolucion =
-                dto.IdAdminResolucion;
-
-            disputa.ResolucionDetalle =
-                dto.ResolucionDetalle;
+            disputa.FechaResolucion = DateTime.Now;
+            disputa.IdAdminResolucion = dto.IdAdminResolucion;
+            disputa.ResolucionDetalle = dto.ResolucionDetalle;
 
             await _repository.ActualizarDisputa();
+
+            // Cancelar la transacción asociada y reabrir la oferta
+            var transaccion = await _context.Transaccion.FindAsync(disputa.IdTransaccion);
+            if (transaccion != null && transaccion.IdEstadoTransaccion != 4 && transaccion.IdEstadoTransaccion != 5)
+            {
+                transaccion.IdEstadoTransaccion = 5; // Cancelada
+                transaccion.FechaCancelacion = DateTime.Now;
+
+                var oferta = await _context.Oferta.FindAsync(transaccion.IdOferta);
+                if (oferta != null)
+                    oferta.IdEstadoOferta = 1; // Activa de nuevo
+
+                await _context.SaveChangesAsync();
+            }
 
             return true;
         }

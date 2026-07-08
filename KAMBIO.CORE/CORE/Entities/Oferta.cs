@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace KAMBIO.CORE.Core.Entities;
 
@@ -40,6 +42,8 @@ public partial class Oferta
     public virtual TipoOferta IdTipoOfertaNavigation { get; set; } = null!;
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+    [Timestamp]
+    public byte[] RowVersion { get; set; } = null!;
 
     public virtual ICollection<MatchOferta> MatchOfertaIdOfertaMatchNavigation { get; set; } = new List<MatchOferta>();
 
