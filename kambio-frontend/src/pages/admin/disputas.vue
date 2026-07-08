@@ -325,21 +325,14 @@ const mensajesChat = ref([])
 const imagenAmpliada = ref('')
 
 // --- Flujo de bloqueo post-resolución ---
+// --- Flujo de bloqueo post-resolución ---
 const mostrarDialogoBloqueo = ref(false)
-
 const disputaResuelta = ref(null)
 const usuarioObjetivo = ref(null)
 const motivoBloqueo = ref('')
 const nuevoEstadoCuenta = ref(2)
 const procesandoBloqueo = ref(false)
 const errorBloqueo = ref('')
-
-const usuarioObjetivo = ref(null) // { idUsuario, nombre, lado }
-const motivoBloqueo = ref('')
-const nuevoEstadoCuenta = ref(2) // 2=Suspendido, 3=Bloqueado
-const procesandoBloqueo = ref(false)
-const errorBloqueo = ref('')
-const disputaResuelta = ref(null)
 
 
 const mostrarImagenAmpliada = computed({
