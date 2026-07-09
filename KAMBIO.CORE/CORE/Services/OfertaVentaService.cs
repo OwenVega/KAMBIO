@@ -7,10 +7,12 @@ namespace KAMBIO.CORE.Core.Services
     public class OfertaVentaService : IOfertaVentaService
     {
         private readonly IOfertaVentaRepository _repository;
+        private readonly IOfertaService _ofertaService;
 
-        public OfertaVentaService(IOfertaVentaRepository repository)
+        public OfertaVentaService(IOfertaVentaRepository repository, IOfertaService ofertaService)
         {
             _repository = repository;
+            _ofertaService = ofertaService;
         }
 
         public async Task<OfertaVentaResponseDTO> CrearOfertaVenta(
@@ -42,7 +44,7 @@ namespace KAMBIO.CORE.Core.Services
             var ofertaCreada = await _repository.CrearOfertaVenta(
                 oferta,
                 request.IdBancos);
-
+            await _ofertaService.EjecutarMatchingAutomaticoAsync(ofertaCreada);
             return new OfertaVentaResponseDTO
             {
                 IdOferta = ofertaCreada.IdOferta,

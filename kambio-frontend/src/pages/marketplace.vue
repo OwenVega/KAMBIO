@@ -212,12 +212,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import { useAuthStore } from '../stores/auth-store'
 import { ofertaService } from '../services/ofertaService'
 import { transaccionService } from '../services/transaccionService'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const $q = useQuasar()
 
 
 const tipoOferta = ref(1) // 1 = Compra, 2 = Venta
@@ -292,15 +294,21 @@ async function seleccionarOferta (oferta) {
     router.push(`/transaccion/${resultado.transaccion.idTransaccion}`)
   } catch (error) {
     const mensaje = error.response?.data?.error || 'No se pudo iniciar la transacción.'
-    alert(mensaje)
+
+    $q.notify({
+      type: 'negative',
+      message: mensaje,
+      icon: 'report_problem',
+      position: 'top',
+      timeout: 4000
+    })
+
+    // Si la oferta ya no está disponible, refrescamos la lista para que desaparezca
+    if (mensaje.includes('tomada por otro usuario') || mensaje.includes('ya no está disponible')) {
+      buscarOfertas()
+    }
   }
 }
-
-function cerrarSesion () {
-  authStore.cerrarSesion()
-  router.push('/login')
-}
-
 onMounted(() => {
   buscarOfertas()
 })

@@ -1,8 +1,8 @@
 ﻿using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
-
+using KAMBIO.CORE.Core.DTOs;
 using Microsoft.AspNetCore.Http;
-
+using Microsoft.EntityFrameworkCore;
 namespace KAMBIO.CORE.Core.Services
 {
     public class ComprobanteService : IComprobanteService
@@ -13,7 +13,21 @@ namespace KAMBIO.CORE.Core.Services
         {
             _context = context;
         }
+        public async Task<List<ComprobanteDto>> ObtenerPorTransaccionAsync(int idTransaccion)
+        {
+            var comprobantes = await _context.Comprobante
+                .Where(c => c.IdTransaccion == idTransaccion && c.Activo)
+                .OrderByDescending(c => c.FechaSubida)
+                .ToListAsync();
 
+            return comprobantes.Select(c => new ComprobanteDto
+            {
+                IdComprobante = c.IdComprobante,
+                RutaImagen = c.RutaImagen,
+                FechaSubida = c.FechaSubida
+            }).ToList();
+        }
+      
         public async Task SubirComprobanteAsync(int idTransaccion, int idUsuario, IFormFile archivo, string carpetaVouchers)
         {
             var transaccion = await _context.Transaccion.FindAsync(idTransaccion)

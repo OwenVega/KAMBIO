@@ -32,6 +32,12 @@
       <q-page class="row no-wrap">
         <div class="q-pa-md bg-dark text-white" style="width: 220px; min-height: 100%;">
           <q-list>
+            <q-item clickable to="/admin/dashboard">
+              <q-item-section avatar>
+                <q-icon name="dashboard" color="white" />
+              </q-item-section>
+              <q-item-section class="text-white">Dashboard</q-item-section>
+            </q-item>
             <q-item clickable to="/admin/usuarios" class="bg-primary rounded-borders">
               <q-item-section avatar>
                 <q-icon name="people" color="white" />

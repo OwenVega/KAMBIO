@@ -15,7 +15,20 @@ namespace KAMBIO.API.Controllers
             _comprobanteService = comprobanteService;
             _env = env;
         }
-
+        [HttpGet("{idTransaccion}")]
+        public async Task<IActionResult> ObtenerComprobantes(int idTransaccion)
+        {
+            try
+            {
+                var comprobantes = await _comprobanteService.ObtenerPorTransaccionAsync(idTransaccion);
+                return Ok(comprobantes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error interno.", detalle = ex.Message });
+            }
+        }
+        
         [HttpPost("subir")]
         public async Task<IActionResult> SubirVoucher(
         [FromForm] int idTransaccion,

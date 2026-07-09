@@ -106,7 +106,7 @@ namespace KAMBIO.CORE.CORE.Services
             };
 
             var creada = await _ofertaRepository.CrearOfertaCompra(oferta, dto.MetodosPago);
-
+            await EjecutarMatchingAutomaticoAsync(creada);
             return new OfertaResponseDTO
             {
                 Mensaje = "Oferta de compra publicada exitosamente.",

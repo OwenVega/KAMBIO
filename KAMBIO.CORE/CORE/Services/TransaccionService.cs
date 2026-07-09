@@ -203,20 +203,16 @@ namespace KAMBIO.CORE.Core.Services
             if (oferta.IdUsuario == idUsuarioComprador)
                 throw new InvalidOperationException("No puedes iniciar una transacción con tu propia oferta.");
 
-            // Determinar quién es comprador y quién es vendedor según el tipo de oferta
-            // IdTipoOferta: 1 = Compra (el anunciante quiere comprar), 2 = Venta (el anunciante quiere vender)
             int idUsuarioComprara;
             int idUsuarioVende;
 
             if (oferta.IdTipoOferta == 1)
             {
-                // El anunciante publicó que quiere COMPRAR, entonces el usuario que acepta VENDE
                 idUsuarioComprara = oferta.IdUsuario;
                 idUsuarioVende = idUsuarioComprador;
             }
             else
             {
-                // El anunciante publicó que quiere VENDER, entonces el usuario que acepta COMPRA
                 idUsuarioComprara = idUsuarioComprador;
                 idUsuarioVende = oferta.IdUsuario;
             }
@@ -229,7 +225,7 @@ namespace KAMBIO.CORE.Core.Services
                 IdOferta = oferta.IdOferta,
                 IdUsuarioComprador = idUsuarioComprara,
                 IdUsuarioVendedor = idUsuarioVende,
-                IdEstadoTransaccion = 1, // Pendiente
+                IdEstadoTransaccion = 1,
                 IdDivisaOrigen = oferta.IdDivisaOrigen,
                 IdDivisaDestino = oferta.IdDivisaDestino,
                 Monto = monto,
@@ -240,12 +236,21 @@ namespace KAMBIO.CORE.Core.Services
                 ConfirmadoPorComprador = false,
                 ConfirmadoPorVendedor = false
             };
+
             oferta.IdEstadoOferta = 4; // Emparejada
             _context.Oferta.Update(oferta);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new InvalidOperationException("Esta oferta acaba de ser tomada por otro usuario. Por favor, elige otra oferta.");
+            }
 
             var creada = await _transaccionRepository.CrearAsync(nuevaTransaccion);
-            // Notificar al dueño de la oferta original que alguien la aceptó
+
             var idDuenoOferta = oferta.IdUsuario;
             var idOtraParte = idDuenoOferta == idUsuarioComprara ? idUsuarioVende : idUsuarioComprara;
             await _notificacionService.CrearNotificacionAsync(

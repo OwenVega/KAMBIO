@@ -13,5 +13,10 @@ export const comprobanteService = {
       }
     })
     return response.data
+  },
+
+  async obtenerPorTransaccion (idTransaccion) {
+    const response = await api.get(`/Comprobante/${idTransaccion}`)
+    return response.data
   }
 }
