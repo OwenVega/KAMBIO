@@ -76,5 +76,22 @@ namespace KAMBIO.CORE.Core.Services
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<List<ReseñaDto>> ObtenerReseñasAsync(int idUsuario)
+        {
+            var calificaciones = await _context.Calificacion
+                .Include(c => c.IdUsuarioEvaluaNavigation)
+                .Where(c => c.IdUsuarioEvaluado == idUsuario)
+                .OrderByDescending(c => c.FechaCalificacion)
+                .ToListAsync();
+
+            return calificaciones.Select(c => new ReseñaDto
+            {
+                IdCalificacion = c.IdCalificacion,
+                UsuarioEvaluaNombre = $"{c.IdUsuarioEvaluaNavigation.Nombres} {c.IdUsuarioEvaluaNavigation.Apellidos}",
+                Estrellas = c.Estrellas,
+                Comentario = c.Comentario,
+                FechaCalificacion = c.FechaCalificacion
+            }).ToList();
+        }
     }
 }

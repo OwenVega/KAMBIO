@@ -141,7 +141,7 @@
               </div>
             </div>
             <div v-if="cotizacionMercado" class="text-caption text-grey-7">
-              Fuente: Frankfurter (BCE) — {{ cotizacionMercado.fecha }}
+              Fuente: ExchangeRate-API — {{ cotizacionMercado.fecha }}
             </div>
           </div>
         </q-card>
@@ -158,12 +158,24 @@
           >
             <template v-slot:body-cell-anunciante="props">
               <q-td :props="props">
-                <div class="row items-center q-gutter-sm">
+                <div class="row items-center q-gutter-sm cursor-pointer" @click="verPerfilAnunciante(props.row)">
                   <q-avatar size="32px" color="primary" text-color="white">
                     {{ obtenerIniciales(props.row.anuncianteNombre) }}
                   </q-avatar>
                   <div>
-                    <div class="text-weight-medium">{{ props.row.anuncianteNombre }}</div>
+                    <div class="row items-center q-gutter-xs">
+                      <span class="text-weight-medium text-primary">{{ props.row.anuncianteNombre }}</span>
+                      <q-chip
+                        v-if="obtenerBadge(props.row.porcentajeReputacion, props.row.ordenesCompletadas)"
+                        dense
+                        size="sm"
+                        :color="obtenerBadge(props.row.porcentajeReputacion, props.row.ordenesCompletadas).color"
+                        text-color="white"
+                        :icon="obtenerBadge(props.row.porcentajeReputacion, props.row.ordenesCompletadas).icon"
+                      >
+                        {{ obtenerBadge(props.row.porcentajeReputacion, props.row.ordenesCompletadas).label }}
+                      </q-chip>
+                    </div>
                     <div class="text-caption text-grey-7">
                       <q-icon name="circle" size="8px" color="green" class="q-mr-xs" />
                       {{ props.row.porcentajeReputacion }}% ({{ props.row.ordenesCompletadas }} órdenes)
@@ -172,6 +184,7 @@
                 </div>
               </q-td>
             </template>
+
 
             <template v-slot:body-cell-precio="props">
               <q-td :props="props">
@@ -229,6 +242,75 @@
         </q-card>
       </q-page>
     </q-page-container>
+        <q-dialog v-model="mostrarPerfil">
+      <q-card style="min-width: 400px; max-width: 500px" class="q-pa-md" v-if="anuncianteSeleccionado">
+        <q-card-section class="text-center">
+          <q-avatar size="64px" color="primary" text-color="white" class="q-mb-sm">
+            {{ obtenerIniciales(anuncianteSeleccionado.anuncianteNombre) }}
+          </q-avatar>
+          <div class="text-h6 text-weight-bold">{{ anuncianteSeleccionado.anuncianteNombre }}</div>
+
+          <q-chip
+            v-if="obtenerBadge(anuncianteSeleccionado.porcentajeReputacion, anuncianteSeleccionado.ordenesCompletadas)"
+            dense
+            :color="obtenerBadge(anuncianteSeleccionado.porcentajeReputacion, anuncianteSeleccionado.ordenesCompletadas).color"
+            text-color="white"
+            :icon="obtenerBadge(anuncianteSeleccionado.porcentajeReputacion, anuncianteSeleccionado.ordenesCompletadas).icon"
+            class="q-mt-xs"
+          >
+            {{ obtenerBadge(anuncianteSeleccionado.porcentajeReputacion, anuncianteSeleccionado.ordenesCompletadas).label }}
+          </q-chip>
+
+          <div class="row justify-center q-gutter-md q-mt-md">
+            <div class="text-center">
+              <div class="text-h6 text-weight-bold text-amber-9">
+                <q-icon name="star" color="amber" /> {{ promedioAnunciante?.promedio ?? '—' }}
+              </div>
+              <div class="text-caption text-grey-7">{{ promedioAnunciante?.totalCalificaciones ?? 0 }} calificaciones</div>
+            </div>
+            <div class="text-center">
+              <div class="text-h6 text-weight-bold">{{ anuncianteSeleccionado.ordenesCompletadas }}</div>
+              <div class="text-caption text-grey-7">Órdenes completadas</div>
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section>
+          <div class="text-subtitle2 text-weight-bold q-mb-sm">Reseñas recientes</div>
+
+          <q-inner-loading :showing="cargandoResenas">
+            <q-spinner color="primary" size="2em" />
+          </q-inner-loading>
+
+          <div v-if="!cargandoResenas && resenas.length === 0" class="text-caption text-grey-6 text-center q-py-md">
+            Este usuario todavía no tiene reseñas.
+          </div>
+
+          <q-list v-else separator style="max-height: 300px; overflow-y: auto">
+            <q-item v-for="r in resenas" :key="r.idCalificacion">
+              <q-item-section>
+                <div class="row items-center justify-between">
+                  <span class="text-weight-medium">{{ r.usuarioEvaluaNombre }}</span>
+                  <div>
+                    <q-icon
+                      v-for="n in 5"
+                      :key="n"
+                      name="star"
+                      :color="n <= r.estrellas ? 'amber' : 'grey-4'"
+                      size="16px"
+                    />
+                  </div>
+                </div>
+                <q-item-label caption v-if="r.comentario">{{ r.comentario }}</q-item-label>
+                <q-item-label caption class="text-grey-5">{{ formatearFechaResena(r.fechaCalificacion) }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 
@@ -240,7 +322,7 @@ import { useAuthStore } from '../stores/auth-store'
 import { ofertaService } from '../services/ofertaService'
 import { transaccionService } from '../services/transaccionService'
 import { cotizacionService } from '../services/cotizacionService'
-
+import { calificacionService } from '../services/calificacionService'
 const router = useRouter()
 const authStore = useAuthStore()
 const $q = useQuasar()
@@ -253,6 +335,11 @@ const divisaDestino = ref(2) // PEN
 const monto = ref(null)
 const cargando = ref(false)
 const ofertas = ref([])
+const mostrarPerfil = ref(false)
+const anuncianteSeleccionado = ref(null)
+const promedioAnunciante = ref(null)
+const resenas = ref([])
+const cargandoResenas = ref(false)
 
 const opcionesDivisa = [
   { label: 'USD - Dólar Estadounidense', value: 1 },
@@ -294,6 +381,22 @@ function formatearMoneda (valor) {
   if (valor == null) return '0.00'
   return Number(valor).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
+function formatearFechaResena (fecha) {
+  return new Date(fecha).toLocaleDateString('es-PE', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+function obtenerBadge (reputacion, ordenes) {
+  if (reputacion >= 95 && ordenes > 10) {
+    return { label: 'Top Vendedor', color: 'amber-8', icon: 'workspace_premium' }
+  }
+  if (reputacion >= 80) {
+    return { label: 'Confiable', color: 'blue-6', icon: 'verified' }
+  }
+  if (ordenes < 3) {
+    return { label: 'Nuevo', color: 'grey-6', icon: 'fiber_new' }
+  }
+  return null
+}
 
 async function buscarOfertas () {
   cargando.value = true
@@ -312,6 +415,29 @@ async function buscarOfertas () {
     cargando.value = false
   }
 }
+async function verPerfilAnunciante (oferta) {
+  anuncianteSeleccionado.value = oferta
+  mostrarPerfil.value = true
+  cargandoResenas.value = true
+  promedioAnunciante.value = null
+  resenas.value = []
+
+  // Nota: usamos oferta.idUsuario si tu OfertaP2PDTO lo trae; si no, revisa el nombre exacto del campo
+  const idAnunciante = oferta.idAnunciante
+
+  try {
+    const [promedioRes, resenasRes] = await Promise.allSettled([
+      calificacionService.obtenerPromedio(idAnunciante),
+      calificacionService.obtenerResenas(idAnunciante)
+    ])
+    if (promedioRes.status === 'fulfilled') promedioAnunciante.value = promedioRes.value
+    if (resenasRes.status === 'fulfilled') resenas.value = resenasRes.value
+  } catch (error) {
+    console.error('Error al cargar perfil del anunciante:', error)
+  } finally {
+    cargandoResenas.value = false
+  }
+}
 
 async function seleccionarOferta (oferta) {
   try {
@@ -328,12 +454,12 @@ async function seleccionarOferta (oferta) {
       timeout: 4000
     })
 
-    // Si la oferta ya no está disponible, refrescamos la lista para que desaparezca
     if (mensaje.includes('tomada por otro usuario') || mensaje.includes('ya no está disponible')) {
       buscarOfertas()
     }
   }
 }
+
 async function cargarCotizacion () {
   cargandoCotizacion.value = true
   cotizacionMercado.value = null
@@ -346,14 +472,18 @@ async function cargarCotizacion () {
     cargandoCotizacion.value = false
   }
 }
+
 watch([divisaOrigen, divisaDestino], () => {
   cargarCotizacion()
 })
+
 function cerrarSesion () {
   authStore.cerrarSesion()
   router.push('/login')
 }
+
 onMounted(() => {
   buscarOfertas()
+  cargarCotizacion()
 })
 </script>

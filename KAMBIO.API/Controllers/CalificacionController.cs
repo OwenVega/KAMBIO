@@ -46,5 +46,18 @@ namespace KAMBIO.API.Controllers
                 return StatusCode(500, new { error = "Error interno.", detalle = ex.Message });
             }
         }
+        [HttpGet("resenas/{idUsuario}")]
+        public async Task<IActionResult> ObtenerReseñas(int idUsuario)
+        {
+            try
+            {
+                var resultado = await _calificacionService.ObtenerReseñasAsync(idUsuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error interno.", detalle = ex.Message });
+            }
+        }
     }
 }
