@@ -123,6 +123,28 @@
             </div>
           </div>
         </q-card>
+        <q-card flat bordered class="q-pa-md q-mb-md" :class="cargandoCotizacion ? 'bg-grey-2' : 'bg-blue-1'">
+          <div class="row items-center justify-between">
+            <div class="row items-center q-gutter-sm">
+              <q-icon name="show_chart" color="blue-9" size="24px" />
+              <div>
+                <div class="text-caption text-blue-9">Cotización de mercado (referencial)</div>
+                <div v-if="cotizacionMercado" class="text-weight-bold text-blue-9">
+                  1 {{ divisaOrigenCodigo }} = {{ formatearMoneda(cotizacionMercado.tasa) }} {{ divisaDestinoCodigo }}
+                </div>
+                <div v-else-if="cargandoCotizacion" class="text-caption text-grey-6">
+                  Cargando cotización...
+                </div>
+                <div v-else class="text-caption text-grey-6">
+                  Cotización no disponible
+                </div>
+              </div>
+            </div>
+            <div v-if="cotizacionMercado" class="text-caption text-grey-7">
+              Fuente: Frankfurter (BCE) — {{ cotizacionMercado.fecha }}
+            </div>
+          </div>
+        </q-card>
 
         <q-card flat bordered>
           <q-table
@@ -211,18 +233,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useAuthStore } from '../stores/auth-store'
 import { ofertaService } from '../services/ofertaService'
 import { transaccionService } from '../services/transaccionService'
+import { cotizacionService } from '../services/cotizacionService'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const $q = useQuasar()
 
-
+const cotizacionMercado = ref(null)
+const cargandoCotizacion = ref(false)
 const tipoOferta = ref(1) // 1 = Compra, 2 = Venta
 const divisaOrigen = ref(1) // USD
 const divisaDestino = ref(2) // PEN
@@ -310,6 +334,21 @@ async function seleccionarOferta (oferta) {
     }
   }
 }
+async function cargarCotizacion () {
+  cargandoCotizacion.value = true
+  cotizacionMercado.value = null
+  try {
+    const resultado = await cotizacionService.obtenerTasa(divisaOrigenCodigo.value, divisaDestinoCodigo.value)
+    cotizacionMercado.value = resultado
+  } catch (error) {
+    console.error('Error al obtener cotización:', error)
+  } finally {
+    cargandoCotizacion.value = false
+  }
+}
+watch([divisaOrigen, divisaDestino], () => {
+  cargarCotizacion()
+})
 function cerrarSesion () {
   authStore.cerrarSesion()
   router.push('/login')
