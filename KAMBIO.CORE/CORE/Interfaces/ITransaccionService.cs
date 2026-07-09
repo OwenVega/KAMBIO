@@ -8,5 +8,6 @@ namespace KAMBIO.CORE.CORE.Interfaces
         Task<TransaccionDetalleDto> ObtenerPorIdAsync(int idTransaccion);
         Task<HistorialPaginadoDTO> ObtenerHistorialUsuarioAsync(int idUsuario, FiltroHistorialDTO filtro);
         Task<TransaccionDetalleDto> CrearTransaccionDesdeOfertaAsync(int idOferta, int idUsuarioComprador);
+        Task<List<TransaccionActivaDTO>> ObtenerTransaccionesActivasAsync(int idUsuario);
     }
 }

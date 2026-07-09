@@ -12,6 +12,7 @@
           <q-route-tab name="historial" label="Historial" no-caps to="/historial" />
           <q-route-tab name="billeteras" label="Billeteras" no-caps to="/billeteras" />
           <q-route-tab name="alertas" label="Alertas" no-caps to="/alertas" />
+          <q-route-tab name="mensajes" label="Mensajes" no-caps to="/mensajes" />
         </q-tabs>
 
         <q-space />
@@ -308,6 +309,10 @@ async function seleccionarOferta (oferta) {
       buscarOfertas()
     }
   }
+}
+function cerrarSesion () {
+  authStore.cerrarSesion()
+  router.push('/login')
 }
 onMounted(() => {
   buscarOfertas()

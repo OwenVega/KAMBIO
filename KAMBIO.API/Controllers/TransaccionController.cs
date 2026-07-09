@@ -80,5 +80,21 @@ namespace KAMBIO.API.Controllers
                 return StatusCode(500, new { error = "Error interno.", detalle = ex.Message });
             }
         }
+        [HttpGet("activas")]
+        public async Task<IActionResult> ObtenerActivas([FromHeader(Name = "X-Usuario-Id")] int? idUsuario)
+        {
+            if (idUsuario == null || idUsuario <= 0)
+                return Unauthorized(new { mensaje = "Debe iniciar sesión para ver sus transacciones." });
+
+            try
+            {
+                var resultado = await _transaccionService.ObtenerTransaccionesActivasAsync(idUsuario.Value);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error interno.", detalle = ex.Message });
+            }
+        }
     }
 }

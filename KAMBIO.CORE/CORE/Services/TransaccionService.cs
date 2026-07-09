@@ -189,6 +189,50 @@ namespace KAMBIO.CORE.Core.Services
                 TotalPaginas = totalPaginas
             };
         }
+        public async Task<List<TransaccionActivaDTO>> ObtenerTransaccionesActivasAsync(int idUsuario)
+        {
+            var transacciones = await _context.Transaccion
+                .Include(t => t.IdUsuarioCompradorNavigation)
+                .Include(t => t.IdUsuarioVendedorNavigation)
+                .Include(t => t.IdEstadoTransaccionNavigation)
+                .Where(t => (t.IdUsuarioComprador == idUsuario || t.IdUsuarioVendedor == idUsuario)
+                            && t.IdEstadoTransaccion != 4 && t.IdEstadoTransaccion != 5) // no Completada ni Cancelada
+                .ToListAsync();
+
+            var resultado = new List<TransaccionActivaDTO>();
+
+            foreach (var t in transacciones)
+            {
+                var esComprador = t.IdUsuarioComprador == idUsuario;
+                var idOtraParte = esComprador ? t.IdUsuarioVendedor : t.IdUsuarioComprador;
+                var nombreOtraParte = esComprador
+                    ? $"{t.IdUsuarioVendedorNavigation.Nombres} {t.IdUsuarioVendedorNavigation.Apellidos}"
+                    : $"{t.IdUsuarioCompradorNavigation.Nombres} {t.IdUsuarioCompradorNavigation.Apellidos}";
+
+                var ultimoMensaje = await _context.MensajeChat
+                    .Where(m => m.IdTransaccion == t.IdTransaccion)
+                    .OrderByDescending(m => m.FechaEnvio)
+                    .FirstOrDefaultAsync();
+
+                var noLeidos = await _context.MensajeChat
+                    .CountAsync(m => m.IdTransaccion == t.IdTransaccion
+                                      && m.IdUsuarioEnvia != idUsuario
+                                      && !m.Leido);
+
+                resultado.Add(new TransaccionActivaDTO
+                {
+                    IdTransaccion = t.IdTransaccion,
+                    OtraParteNombre = nombreOtraParte,
+                    IdOtraParte = idOtraParte,
+                    EstadoNombre = t.IdEstadoTransaccionNavigation.Nombre,
+                    UltimoMensaje = ultimoMensaje?.Mensaje,
+                    FechaUltimoMensaje = ultimoMensaje?.FechaEnvio,
+                    MensajesNoLeidos = noLeidos
+                });
+            }
+
+            return resultado.OrderByDescending(r => r.FechaUltimoMensaje ?? DateTime.MinValue).ToList();
+        }
         public async Task<TransaccionDetalleDto> CrearTransaccionDesdeOfertaAsync(int idOferta, int idUsuarioComprador)
         {
             var oferta = await _context.Oferta
