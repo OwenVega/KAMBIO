@@ -1,5 +1,5 @@
 // PROGRAM.CS - Punto de entrada de la aplicación
-using KAMBIO.API.Hubs;
+using KAMBIO.CORE.CORE.Hubs;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.Core.Interfaces;
 using KAMBIO.CORE.Core.Services;

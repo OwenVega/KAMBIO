@@ -1,16 +1,22 @@
 ﻿using KAMBIO.CORE.Core.DTOs;
 using KAMBIO.CORE.CORE.Interfaces;
 using KAMBIO.CORE.Core.Entities;
+using KAMBIO.CORE.CORE.Hubs;
+using Microsoft.AspNetCore.SignalR;
+
 namespace KAMBIO.CORE.CORE.Services
 {
     public class NotificacionService : INotificacionService
     {
         private readonly INotificacionRepository _notificacionRepository;
+        private readonly IHubContext<NotificacionHub> _hubContext;
 
-
-        public NotificacionService(INotificacionRepository notificacionRepository)
+        public NotificacionService(
+            INotificacionRepository notificacionRepository,
+            IHubContext<NotificacionHub> hubContext)
         {
             _notificacionRepository = notificacionRepository;
+            _hubContext = hubContext;
         }
 
         public async Task<IEnumerable<NotificacionDto>> ObtenerNotificacionesAsync(int idUsuario)
@@ -45,6 +51,7 @@ namespace KAMBIO.CORE.CORE.Services
         {
             return await _notificacionRepository.ContarNoLeidasAsync(idUsuario);
         }
+
         public async Task CrearNotificacionAsync(int idUsuario, string titulo, string mensaje, int? idReferencia, string tipoReferencia)
         {
             var notificacion = new Notificacion
@@ -60,6 +67,18 @@ namespace KAMBIO.CORE.CORE.Services
             };
 
             await _notificacionRepository.CrearNotificacionAsync(notificacion);
+
+            // Emitir en tiempo real al usuario destinatario
+            await _hubContext.Clients.Group($"usuario_{idUsuario}").SendAsync("NuevaNotificacion", new NotificacionDto
+            {
+                IdNotificacion = notificacion.IdNotificacion,
+                Titulo = notificacion.Titulo,
+                Mensaje = notificacion.Mensaje,
+                Leida = notificacion.Leida,
+                FechaCreacion = notificacion.FechaCreacion,
+                IdReferencia = notificacion.IdReferencia,
+                TipoReferencia = notificacion.TipoReferencia
+            });
         }
     }
 }

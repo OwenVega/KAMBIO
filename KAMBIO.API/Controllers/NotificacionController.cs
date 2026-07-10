@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using KAMBIO.CORE.CORE.Interfaces;
-using KAMBIO.API.Hubs;
+using KAMBIO.CORE.CORE.Hubs;
 
 namespace KAMBIO.API.Controllers
 {

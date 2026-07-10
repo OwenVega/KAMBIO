@@ -64,39 +64,69 @@
                   <div class="text-weight-medium">{{ tipoOperacionPersonal }}</div>
                 </div>
               </div>
-              <div v-if="transaccion.estadoNombre === 'En Proceso'" class="q-mb-md">
-                  <q-separator class="q-mb-md" />
-                  <div class="text-caption text-grey-7 q-mb-sm">Comprobante de Pago</div>
-                  <q-list v-if="comprobanteSubido" bordered separator class="rounded-borders">
-                    <q-item>
-                      <q-item-section avatar>
-                        <q-icon name="description" color="primary" />
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label class="text-weight-medium">{{ nombreArchivoSubido }}</q-item-label>
-                        <q-item-label caption>Subido el {{ new Date().toLocaleString('es-PE', { dateStyle: 'medium', timeStyle: 'short' }) }}</q-item-label>
-                      </q-item-section>
-                      <q-item-section side>
-                        <q-icon name="check_circle" color="positive" />
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-                  <div v-else>
-                    <q-file
-                      v-model="archivoComprobante"
-                      label="Subir imagen del voucher (JPG, PNG)"
-                      outlined
-                      dense
-                      accept="image/jpeg,image/png"
-                      @update:model-value="subirComprobante"
-                    >
-                      <template v-slot:prepend>
-                        <q-icon name="attach_file" />
-                      </template>
-                    </q-file>
-                    <q-linear-progress v-if="subiendoComprobante" indeterminate color="primary" class="q-mt-sm" />
+              <div v-if="['En Proceso', 'Pago Realizado', 'Completada'].includes(transaccion.estadoNombre)" class="q-mb-md">
+                <q-separator class="q-mb-md" />
+                <div class="row q-col-gutter-md">
+                  <!-- Mi comprobante -->
+                  <div class="col-6">
+                    <div class="text-caption text-grey-7 q-mb-sm">Mi Comprobante</div>
+                    <q-list v-if="miComprobante" bordered separator class="rounded-borders">
+                      <q-item>
+                        <q-item-section avatar>
+                          <q-icon name="description" color="primary" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label class="text-weight-medium" style="font-size: 12px">Comprobante subido</q-item-label>
+                          <q-item-label caption>{{ formatearFecha(miComprobante.fechaSubida) }}</q-item-label>
+                        </q-item-section>
+                        <q-item-section side>
+                          <q-icon name="check_circle" color="positive" />
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                    <div v-else-if="transaccion.estadoNombre === 'En Proceso'">
+                      <q-file
+                        v-model="archivoComprobante"
+                        label="Subir mi voucher (JPG, PNG)"
+                        outlined
+                        dense
+                        accept="image/jpeg,image/png"
+                        @update:model-value="subirComprobante"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="attach_file" />
+                        </template>
+                      </q-file>
+                      <q-linear-progress v-if="subiendoComprobante" indeterminate color="primary" class="q-mt-sm" />
+                    </div>
+                    <div v-else class="text-caption text-grey-6">
+                      No subiste comprobante.
+                    </div>
+                  </div>
+
+                  <!-- Comprobante de la otra parte -->
+                  <div class="col-6">
+                    <div class="text-caption text-grey-7 q-mb-sm">Comprobante de {{ nombreOtraParte }}</div>
+                    <q-list v-if="comprobanteOtraParte" bordered separator class="rounded-borders">
+                      <q-item>
+                        <q-item-section avatar>
+                          <q-icon name="description" color="teal" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label class="text-weight-medium" style="font-size: 12px">Comprobante recibido</q-item-label>
+                          <q-item-label caption>{{ formatearFecha(comprobanteOtraParte.fechaSubida) }}</q-item-label>
+                        </q-item-section>
+                        <q-item-section side>
+                          <q-icon name="check_circle" color="positive" />
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                    <q-banner v-else class="bg-orange-1 text-orange-9 rounded-borders">
+                      <q-icon name="hourglass_empty" /> Aún no ha subido su comprobante.
+                    </q-banner>
                   </div>
                 </div>
+              </div>
 
               <q-separator class="q-my-md" />
 
@@ -311,6 +341,7 @@ import { chatService } from '../../services/chatService'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { disputaService } from '../../services/disputaService'
 
+
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -333,8 +364,7 @@ const cargando = ref(true)
 const actualizando = ref(false)
 const archivoComprobante = ref(null)
 const subiendoComprobante = ref(false)
-const nombreArchivoSubido = ref('')
-const comprobanteSubido = ref(false)
+const comprobantes = ref([])
 
 const colorEstado = computed(() => {
   const mapa = {
@@ -352,6 +382,19 @@ const tipoOperacionPersonal = computed(() => {
   const esComprador = String(transaccion.value.idUsuarioComprador) === String(authStore.usuarioId)
   return esComprador ? 'Compra' : 'Venta'
 })
+const miComprobante = computed(() => {
+  return comprobantes.value.find(c => String(c.idUsuario) === String(authStore.usuarioId))
+})
+
+const comprobanteOtraParte = computed(() => {
+  return comprobantes.value.find(c => String(c.idUsuario) !== String(authStore.usuarioId))
+})
+
+const nombreOtraParte = computed(() => {
+  if (!transaccion.value) return 'la otra parte'
+  const esComprador = String(transaccion.value.idUsuarioComprador) === String(authStore.usuarioId)
+  return esComprador ? 'el vendedor' : 'el comprador'
+})
 
 function formatearMoneda (valor) {
   if (valor == null) return '0.00'
@@ -368,6 +411,7 @@ async function cargarTransaccion () {
   try {
     const idTransaccion = route.params.id
     transaccion.value = await transaccionService.obtenerPorId(idTransaccion)
+    await cargarComprobantes()
   } catch (error) {
     console.error('Error al cargar la transacción:', error)
     transaccion.value = null
@@ -375,7 +419,13 @@ async function cargarTransaccion () {
     cargando.value = false
   }
 }
-
+async function cargarComprobantes () {
+  try {
+    comprobantes.value = await comprobanteService.obtenerPorTransaccion(transaccion.value.idTransaccion)
+  } catch (error) {
+    console.error('Error al cargar comprobantes:', error)
+  }
+}
 async function confirmarPago () {
   actualizando.value = true
   try {
@@ -394,19 +444,20 @@ async function confirmarPago () {
     actualizando.value = false
   }
 }
+
 async function subirComprobante (archivo) {
   if (!archivo) return
   subiendoComprobante.value = true
   try {
     await comprobanteService.subirComprobante(transaccion.value.idTransaccion, authStore.usuarioId, archivo)
-    comprobanteSubido.value = true
-    nombreArchivoSubido.value = archivo.name
+    await cargarComprobantes()
     $q.notify({ type: 'positive', message: 'Comprobante subido correctamente.', icon: 'check_circle' })
   } catch (error) {
     const mensaje = error.response?.data?.error || 'No se pudo subir el comprobante.'
     alert(mensaje)
   } finally {
     subiendoComprobante.value = false
+    archivoComprobante.value = null
   }
 }
 async function completarTransaccion () {
