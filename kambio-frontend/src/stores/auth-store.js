@@ -1,17 +1,18 @@
 import { defineStore } from 'pinia'
 import { authService } from '../services/authService'
+import { signalrService } from '../services/signalrService'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-  usuarioId: localStorage.getItem('kambio_usuarioId') || null,
-  nombres: localStorage.getItem('kambio_nombres') || null,
-  correo: localStorage.getItem('kambio_correo') || null,
-  idRol: localStorage.getItem('kambio_idRol') || null
-}),
+    usuarioId: localStorage.getItem('kambio_usuarioId') || null,
+    nombres: localStorage.getItem('kambio_nombres') || null,
+    correo: localStorage.getItem('kambio_correo') || null,
+    idRol: localStorage.getItem('kambio_idRol') || null
+  }),
 
   getters: {
-  estaLogueado: (state) => !!state.usuarioId,
-  esAdmin: (state) => Number(state.idRol) === 2
+    estaLogueado: (state) => !!state.usuarioId,
+    esAdmin: (state) => Number(state.idRol) === 2
   },
 
   actions: {
@@ -28,6 +29,8 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('kambio_correo', respuesta.correo)
       localStorage.setItem('kambio_idRol', respuesta.idRol)
 
+      await signalrService.conectar(respuesta.usuarioId)
+
       return respuesta
     },
 
@@ -35,7 +38,9 @@ export const useAuthStore = defineStore('auth', {
       return await authService.registrar(datos)
     },
 
-    cerrarSesion () {
+    async cerrarSesion () {
+      await signalrService.desconectar(this.usuarioId)
+
       this.usuarioId = null
       this.nombres = null
       this.correo = null

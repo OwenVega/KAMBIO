@@ -323,6 +323,7 @@ import { ofertaService } from '../services/ofertaService'
 import { transaccionService } from '../services/transaccionService'
 import { cotizacionService } from '../services/cotizacionService'
 import { calificacionService } from '../services/calificacionService'
+import { signalrService } from '../services/signalrService'
 const router = useRouter()
 const authStore = useAuthStore()
 const $q = useQuasar()
@@ -335,6 +336,7 @@ const divisaDestino = ref(2) // PEN
 const monto = ref(null)
 const cargando = ref(false)
 const ofertas = ref([])
+const noLeidas = ref(0)
 const mostrarPerfil = ref(false)
 const anuncianteSeleccionado = ref(null)
 const promedioAnunciante = ref(null)
@@ -485,5 +487,17 @@ function cerrarSesion () {
 onMounted(() => {
   buscarOfertas()
   cargarCotizacion()
+
+  signalrService.onNuevaNotificacion((notificacion) => {
+    noLeidas.value++
+    $q.notify({
+      type: 'info',
+      message: notificacion.titulo,
+      caption: notificacion.mensaje,
+      icon: 'notifications',
+      position: 'top-right',
+      timeout: 5000
+    })
+  })
 })
 </script>

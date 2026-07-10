@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.SignalR;
 
-namespace KAMBIO.API.Hubs
+namespace KAMBIO.CORE.CORE.Hubs
 {
     public class NotificacionHub : Hub
     {
@@ -15,4 +18,3 @@ namespace KAMBIO.API.Hubs
         }
     }
 }
-
