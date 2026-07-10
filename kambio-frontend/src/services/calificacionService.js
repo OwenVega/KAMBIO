@@ -12,9 +12,14 @@ export const calificacionService = {
     })
     return response.data
   },
-
   async obtenerPromedio (idUsuario) {
     const response = await api.get(`/Calificacion/usuario/${idUsuario}`)
     return response.data
-  }
+  },
+
+  async obtenerResenas (idUsuario) {
+    const response = await api.get(`/Calificacion/resenas/${idUsuario}`)
+    return response.data
+  },
+
 }

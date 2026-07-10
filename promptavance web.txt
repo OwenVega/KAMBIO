@@ -1,0 +1,210 @@
+Mi recomendación: en vez de pelear con esa carpeta rara, lo más simple y seguro es crear un archivo nuevo y limpio:
+kambio-frontend/src/pages/admin/dashboard.vue
+Eso automáticamente generará la ruta /admin/dashboard sin tocar nada de lo que ya funciona. Luego, si quieres, actualizamos el sidebar admin para que el primer link apunte ahí.
+¿Te parece bien esa ruta, o prefieres que el dashboard sea directamente /admin (la raíz)? Si es la raíz, ahí sí tendríamos que mirar qué contienen (index).vue y second.vue para no pisar nada.
+Sobre ReporteController
+Aquí no hay endpoint de estadísticas agregadas (KPIs) — solo:
+
+ObtenerTransaccionesAsync(filtro) → devuelve datos crudos de transacciones
+Exportar a Excel/PDF
+
+Para armar las tarjetas KPI (usuarios activos, disputas pendientes, volumen del mes, etc.) necesito ver:
+
+IReporteService.cs y el DTO que devuelve ObtenerTransaccionesAsync (para saber si con eso ya puedo calcular volumen/cantidad en frontend)
+AdministracionUsuarioController.cs (para ver si ya tienes un endpoint que devuelva conteo de usuarios por estado)
+DisputaController.cs (para ver si hay un endpoint de conteo de disputas pendientes)
+
+¿Me los pasas?kambio-frontend/src/pages/admin/dashboard.vue asi esta bien using KAMBIO.CORE.Core.DTOs;
+
+namespace KAMBIO.CORE.CORE.Interfaces
+{
+    public interface IReporteService
+    {
+        byte[] ExportarExcel(List<ReporteTransaccionDto> datos);
+        byte[] ExportarPdf(List<ReporteTransaccionDto> datos);
+        Task<List<ReporteTransaccionDto>> ObtenerTransaccionesAsync(FiltroReporteDto filtro);
+    }
+}
+using KAMBIO.CORE.Core.DTOs;
+using KAMBIO.CORE.Core.Interfaces;
+using KAMBIO.CORE.CORE.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
+
+namespace KAMBIO.API.Controllers
+{
+    [ApiController]
+    [Route("api/admin/usuarios")]
+    public class AdministracionUsuarioController : ControllerBase
+    {
+        private readonly IAdministracionUsuarioService _adminService;
+
+        public AdministracionUsuarioController(IAdministracionUsuarioService adminService)
+        {
+            _adminService = adminService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerListadoUsuarios()
+        {
+            try
+            {
+                var usuarios = await _adminService.ObtenerListadoUsuariosAsync();
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Ocurrió un error al cargar el listado de usuarios.", detalle = ex.Message });
+            }
+        }
+
+        [HttpPut("estado")]
+        public async Task<IActionResult> CambiarEstadoUsuario([FromBody] CambiarEstadoUsuarioDto dto)
+        {
+            try
+            {
+                await _adminService.CambiarEstadoCuentaAsync(dto);
+                return Ok(new { mensaje = "El estado del usuario ha sido actualizado y se han aplicado las restricciones correspondientes." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Ocurrió un error al actualizar el estado de la cuenta.", detalle = ex.Message });
+            }
+        }
+    }
+}
+using Microsoft.AspNetCore.Mvc;
+using KAMBIO.CORE.CORE.Interfaces;
+using KAMBIO.CORE.Core.DTOs;
+using System;
+
+namespace KAMBIO.API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class DisputaController : ControllerBase
+    {
+        private readonly IDisputaService _service;
+
+        public DisputaController(
+            IDisputaService service)
+        {
+            _service = service;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDisputas()
+        {
+            var resultado =
+                await _service.ObtenerDisputas();
+
+            return Ok(resultado);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObtenerDisputa(int id)
+        {
+            var resultado =
+                await _service.ObtenerDisputaPorId(id);
+
+            if (resultado == null)
+                return NotFound();
+
+            return Ok(resultado);
+        }
+
+        [HttpPut("resolver/{id}")]
+        public async Task<IActionResult> ResolverDisputa(
+            int id,
+            ResolverDisputaDTO dto)
+        {
+            var resultado =
+                await _service.ResolverDisputa(id, dto);
+
+            if (!resultado)
+                return BadRequest();
+
+            return Ok(
+                "Disputa gestionada exitosamente.");
+        }
+
+        [HttpPut("rechazar/{id}")]
+        public async Task<IActionResult> RechazarDisputa(
+            int id,
+            ResolverDisputaDTO dto)
+        {
+            var resultado =
+                await _service.RechazarDisputa(id, dto);
+
+            if (!resultado)
+                return BadRequest();
+
+            return Ok(
+                "Disputa gestionada exitosamente.");
+        }
+        [HttpPost]
+        public async Task<IActionResult> CrearDisputa([FromBody] CrearDisputaDto dto)
+        {
+            try
+            {
+                var resultado = await _service.CrearDisputaAsync(dto);
+                return Ok(new { mensaje = "Disputa reportada correctamente.", data = resultado });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+    }
+}Mostrar másArchitected frontend-driven KPI aggregation strategyArchitected frontend-driven KPI aggregation strategyPerfecto, ahora tengo el panorama completo. No existe ningún endpoint de estadísticas agregadas en ningún controller — ni en Reporte, ni en Usuarios, ni en Disputas. Todos devuelven listados crudos.
+Buena noticia: no hace falta tocar el backend para nada. Podemos calcular los KPIs en el frontend, combinando 3 llamadas que ya existen:
+Dato para la tarjetaEndpoint que ya tienesCómo se calculaTotal usuarios / activos / suspendidos / bloqueadosGET /api/admin/usuariosContar el array por estadoCuentaDisputas pendientes / resueltas / rechazadasGET /api/DisputaContar el array por estadoVolumen total / transacciones del mesGET /api/Reporte (sin filtro, o filtro del mes actual)Sumar monto y contar registros del array ReporteTransaccionDto
+Plan para dashboard.vue
+
+Crear kambio-frontend/src/pages/admin/dashboard.vue
+Al montar la página, hacer las 3 llamadas (usuarios, disputas, reportes) en paralelo con Promise.all
+Calcular en JS: totalUsuarios, usuariosActivos, disputasPendientes, volumenTotal, transaccionesCompletadas
+Mostrar 4 tarjetas KPI arriba (estilo la imagen que mandaste) + un gráfico simple (ej. barras de transacciones por mes, o dona de disputas por estado) usando lo que ya tengas instalado (¿usas Chart.js, ApexCharts, o algo de Quasar como q-linear-progress? dime si ya tienes una librería de gráficos en el proyecto)
+Agregar el link "Dashboard" al sidebar admin, apuntando a /admin/dashboard
+
+Antes de escribir el código: ¿qué forma exacta tiene el JSON que devuelve ReporteTransaccionDto (los nombres de campo: monto, estado, fecha, etc.)? Y del lado de usuarios, ¿el campo de estado se llama estadoCuenta, estado, o algo distinto en lo que devuelve ObtenerListadoUsuariosAsync? Pásame esos dos DTOs (ReporteTransaccionDto.cs y el DTO de usuario que devuelve el admin) y armo el código exacto sin adivinar nombres de campos.no sabria decirteNo hay problema, no hace falta que lo sepas de memoria — lo sacamos directo del código fuente.
+Busca estos dos archivos y pégamelos (probablemente estén en KAMBIO.CORE/Core/DTOs/):
+
+ReporteTransaccionDto.cs
+El DTO que devuelve ObtenerListadoUsuariosAsync — puede llamarse algo como UsuarioAdminDto.cs, UsuarioResponseDto.cs o similar. Si no sabes el nombre exacto, puedes buscarlo así en PowerShell desde la raíz del backend:
+
+powershellcd C:\Users\EMYLI\source\repos\KAMBIO
+Get-ChildItem -Recurse -Include "*.cs" | Select-String -Pattern "ReporteTransaccionDto|class.*Usuario.*Dto" | Select-Object Path -Unique
+Eso te va a listar las rutas de los archivos donde aparecen esas clases. Ábrelos en VS Code y pégame el contenido.namespace KAMBIO.CORE.Core.DTOs
+{
+    public class FiltroReporteDto
+    {
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public int? IdDivisa { get; set; }
+        public int? IdUsuario { get; set; }
+    }
+
+    public class ReporteTransaccionDto
+    {
+        public int IdTransaccion { get; set; }
+        public string Comprador { get; set; } = null!;
+        public string Vendedor { get; set; } = null!;
+        public decimal Monto { get; set; }
+        public decimal MontoEquivalente { get; set; }
+        public decimal TasaCambioAplicada { get; set; }
+        public string TipoOperacion { get; set; } = null!;
+        public string Estado { get; set; } = null!;
+        public string DivisaOrigen { get; set; } = null!;
+        public string DivisaDestino { get; set; } = null!;
+        public DateTime FechaInicio { get; set; }
+    }
+}Mostrar másBuenísimo, ese ya lo tengo claro. Ahora falta el DTO de usuarios administrados — el que devuelve ObtenerListadoUsuariosAsync(). Corre esto para encontrarlo:
+powershellcd C:\Users\EMYLI\source\repos\KAMBIO
+Get-ChildItem -Recurse -Include "*.cs" | Select-String -Pattern "ObtenerListadoUsuariosAsync" | Select-Object Path
+Eso te va a llevar al archivo del IAdministracionUsuarioService o su implementación (AdministracionUsuarioService.cs), donde debería verse qué DTO arma y devuelve. Pégame ese archivo (o si prefieres, directo el DTO tipo UsuarioAdminDto.cs si ya sabes cuál es después de ver el resultado).

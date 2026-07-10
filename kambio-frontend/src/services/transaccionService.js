@@ -9,7 +9,14 @@ export const transaccionService = {
     })
     return response.data
   },
-
+  async obtenerActivas (idUsuario) {
+  const response = await api.get('/Transaccion/activas', {
+    headers: {
+      'X-Usuario-Id': idUsuario
+    }
+  })
+  return response.data
+  },
   async obtenerPorId (idTransaccion) {
     const response = await api.get(`/Transaccion/${idTransaccion}`)
     return response.data
@@ -40,4 +47,5 @@ export const transaccionService = {
     })
     return response.data
   }
+
 }

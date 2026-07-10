@@ -6,5 +6,6 @@ namespace KAMBIO.CORE.CORE.Interfaces
     {
         Task CalificarAsync(CalificacionDto dto);
         Task<PromedioCalificacionDto> ObtenerPromedioAsync(int idUsuario);
+        Task<List<ReseñaDto>> ObtenerReseñasAsync(int idUsuario);
     }
 }

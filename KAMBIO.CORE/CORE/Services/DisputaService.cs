@@ -1,10 +1,10 @@
 
+﻿using DocumentFormat.OpenXml.InkML;
 ﻿using KAMBIO.CORE.Core.DTOs;
 using KAMBIO.CORE.Core.Entities;
 using KAMBIO.CORE.CORE.Interfaces;
+using KAMBIO.CORE.CORE.Services;
 using Microsoft.EntityFrameworkCore;
-
-﻿using DocumentFormat.OpenXml.InkML;
 
 
 namespace KAMBIO.CORE.Core.Services
@@ -13,15 +13,16 @@ namespace KAMBIO.CORE.Core.Services
     {
         private readonly IDisputaRepository _repository;
         private readonly KambioDbContext _context;
-
+        private readonly INotificacionService _notificacionService;
         public DisputaService(
             IDisputaRepository repository,
 
-            KambioDbContext context) 
-
+            KambioDbContext context,
+            INotificacionService notificacionService)
         {
             _repository = repository;
             _context = context;
+            _notificacionService = notificacionService;
         }
         public async Task<DisputaDTO> CrearDisputaAsync(CrearDisputaDto dto)
         {
@@ -139,30 +140,41 @@ namespace KAMBIO.CORE.Core.Services
 
             await _repository.ActualizarDisputa();
 
-            // Cancelar la transacción asociada y reabrir la oferta
             var transaccion = await _context.Transaccion.FindAsync(disputa.IdTransaccion);
             if (transaccion != null && transaccion.IdEstadoTransaccion != 4 && transaccion.IdEstadoTransaccion != 5)
             {
-                transaccion.IdEstadoTransaccion = 5; // Cancelada
+                transaccion.IdEstadoTransaccion = 5;
                 transaccion.FechaCancelacion = DateTime.Now;
 
                 var oferta = await _context.Oferta.FindAsync(transaccion.IdOferta);
                 if (oferta != null)
-                    oferta.IdEstadoOferta = 1; // Activa de nuevo
+                    oferta.IdEstadoOferta = 1;
 
                 await _context.SaveChangesAsync();
+
+                // Notificar a ambas partes
+                await _notificacionService.CrearNotificacionAsync(
+                    transaccion.IdUsuarioComprador,
+                    "Disputa resuelta",
+                    $"La disputa de la transacción #{transaccion.IdTransaccion} fue resuelta. La transacción ha sido cancelada.",
+                    transaccion.IdTransaccion,
+                    "Transaccion"
+                );
+                await _notificacionService.CrearNotificacionAsync(
+                    transaccion.IdUsuarioVendedor,
+                    "Disputa resuelta",
+                    $"La disputa de la transacción #{transaccion.IdTransaccion} fue resuelta. La transacción ha sido cancelada.",
+                    transaccion.IdTransaccion,
+                    "Transaccion"
+                );
             }
 
             return true;
         }
 
-        public async Task<bool> RechazarDisputa(
-            int id,
-            ResolverDisputaDTO dto)
+        public async Task<bool> RechazarDisputa(int id, ResolverDisputaDTO dto)
         {
-            var disputa =
-                await _repository.ObtenerDisputaPorId(id);
-
+            var disputa = await _repository.ObtenerDisputaPorId(id);
             if (disputa == null)
                 return false;
 
@@ -170,17 +182,30 @@ namespace KAMBIO.CORE.Core.Services
                 return false;
 
             disputa.IdEstadoDisputa = 3;
-
-            disputa.FechaResolucion =
-                DateTime.Now;
-
-            disputa.IdAdminResolucion =
-                dto.IdAdminResolucion;
-
-            disputa.ResolucionDetalle =
-                dto.ResolucionDetalle;
+            disputa.FechaResolucion = DateTime.Now;
+            disputa.IdAdminResolucion = dto.IdAdminResolucion;
+            disputa.ResolucionDetalle = dto.ResolucionDetalle;
 
             await _repository.ActualizarDisputa();
+
+            var transaccion = await _context.Transaccion.FindAsync(disputa.IdTransaccion);
+            if (transaccion != null)
+            {
+                await _notificacionService.CrearNotificacionAsync(
+                    transaccion.IdUsuarioComprador,
+                    "Disputa rechazada",
+                    $"La disputa de la transacción #{transaccion.IdTransaccion} fue rechazada. La transacción continúa su curso normal.",
+                    transaccion.IdTransaccion,
+                    "Transaccion"
+                );
+                await _notificacionService.CrearNotificacionAsync(
+                    transaccion.IdUsuarioVendedor,
+                    "Disputa rechazada",
+                    $"La disputa de la transacción #{transaccion.IdTransaccion} fue rechazada. La transacción continúa su curso normal.",
+                    transaccion.IdTransaccion,
+                    "Transaccion"
+                );
+            }
 
             return true;
         }

@@ -164,9 +164,12 @@ namespace KAMBIO.CORE.CORE.Services
             return ofertas.Select(o => new OfertaP2PDTO
             {
                 IdOferta = o.IdOferta,
+                IdAnunciante = o.IdUsuario,
                 AnuncianteNombre = $"{o.IdUsuarioNavigation.Nombres} {o.IdUsuarioNavigation.Apellidos}",
-                PorcentajeReputacion = 100m,
-                OrdenesCompletadas = 15,
+                PorcentajeReputacion = o.IdUsuarioNavigation.CalificacionPromedio > 0
+                ? Math.Round(o.IdUsuarioNavigation.CalificacionPromedio / 5m * 100m, 0)
+                : 0m,
+                OrdenesCompletadas = o.IdUsuarioNavigation.TotalOrdenes,
                 TasaCambio = o.TasaCambio,
                 MontoDisponible = o.MontoDisponible,
                 LimiteMinimo = o.MontoMinimo,

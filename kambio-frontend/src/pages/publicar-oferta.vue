@@ -41,8 +41,8 @@
                 : 'Vende tus divisas de forma segura al tipo de cambio que tú decides.' }}
             </div>
 
-            <q-form @submit.prevent="onSubmit" class="q-gutter-md">
-              <div class="row q-col-gutter-md">
+            <q-form @submit.prevent="onSubmit">
+              <div class="row q-col-gutter-md q-mb-md">
                 <div class="col-6">
                   <q-select
                     v-model="form.idDivisaOrigen"
@@ -74,11 +74,13 @@
                 dense
                 type="number"
                 step="0.001"
-                :hint="`${codigoDestino}/${codigoOrigen}`"
+                :suffix="`${codigoDestino}/${codigoOrigen}`"
+                lazy-rules
+                class="q-mb-md"
                 :rules="[val => !!val && val > 0 || 'El tipo de cambio debe ser mayor a 0']"
               />
 
-              <div class="row q-col-gutter-md">
+              <div class="row q-col-gutter-md q-mb-md">
                 <div class="col-6">
                   <q-input
                     v-model.number="form.montoMinimo"
@@ -86,6 +88,7 @@
                     outlined
                     dense
                     type="number"
+                    lazy-rules
                     :rules="[val => !!val && val > 0 || 'Obligatorio']"
                   />
                 </div>
@@ -96,6 +99,7 @@
                     outlined
                     dense
                     type="number"
+                    lazy-rules
                     :rules="[val => !!val && val > 0 || 'Obligatorio']"
                   />
                 </div>
@@ -107,6 +111,8 @@
                 outlined
                 dense
                 type="number"
+                lazy-rules
+                class="q-mb-md"
                 :rules="[val => !!val && val > 0 || 'Obligatorio']"
               />
 
@@ -120,14 +126,16 @@
                 emit-value
                 map-options
                 use-chips
+                lazy-rules
+                class="q-mb-md"
                 :rules="[val => val && val.length > 0 || 'Selecciona al menos un método']"
               />
 
-              <q-banner v-if="errorMensaje" class="bg-red-1 text-red-9 rounded-borders">
+              <q-banner v-if="errorMensaje" class="bg-red-1 text-red-9 rounded-borders q-mb-md">
                 {{ errorMensaje }}
               </q-banner>
 
-              <q-banner v-if="exitoMensaje" class="bg-green-1 text-green-9 rounded-borders">
+              <q-banner v-if="exitoMensaje" class="bg-green-1 text-green-9 rounded-borders q-mb-md">
                 {{ exitoMensaje }}
               </q-banner>
 
@@ -136,7 +144,7 @@
                 :label="tipoPublicacion === 'compra' ? 'Publicar Oferta' : 'Publicar Oferta de Venta'"
                 :color="tipoPublicacion === 'compra' ? 'dark' : 'positive'"
                 unelevated
-                class="full-width"
+                class="full-width q-mb-sm"
                 :loading="cargando"
               />
               <q-btn

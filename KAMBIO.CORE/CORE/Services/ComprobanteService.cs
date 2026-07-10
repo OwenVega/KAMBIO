@@ -40,7 +40,7 @@ namespace KAMBIO.CORE.Core.Services
 
             Directory.CreateDirectory(carpetaVouchers);
 
-            var nombreArchivo = $"voucher_{idTransaccion}_{idUsuario}_{DateTime.Now:yyyyMMddHHmmss}{ext}";
+            var nombreArchivo = $"{DateTime.Now:yyyy-MM-dd_HHmmss}_transaccion{idTransaccion}{ext}";
             var rutaCompleta = Path.Combine(carpetaVouchers, nombreArchivo);
 
             using (var stream = new FileStream(rutaCompleta, FileMode.Create))
